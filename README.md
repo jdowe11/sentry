@@ -1,2 +1,2 @@
 # sentry
-End-to-end encrypted messanger, with voice calls in mind.
+End-to-end encrypted messenger, with voice calls in mind.
