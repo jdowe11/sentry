@@ -1,3 +1,13 @@
+# ==============================
+# Java
+# ==============================
+
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -5,13 +15,58 @@ pom.xml.versionsBackup
 pom.xml.next
 release.properties
 dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-# https://maven.apache.org/tools/wrapper/#Usage_with_or_without_Binary_JAR
-.mvn/wrapper/maven-wrapper.jar
 
-# Eclipse m2e generated files
-# Eclipse Core
-.project
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
+# ==============================
+# OS files
+# ==============================
+
+.DS_Store
+Thumbs.db
+
+# ==============================
+# Logs
+# ==============================
+
+*.log
+logs/
+
+# ==============================
+# Environment / Secrets
+# ==============================
+
+.env
+.env.*
+!.env.example
+
+# ==============================
+# Local configuration
+# ==============================
+
+application-local.properties
+application-local.yml
+application-local.yaml
+
+# ==============================
+# Database / Local storage
+# ==============================
+
+*.db
+*.sqlite
+*.sqlite3
+
+# ==============================
+# Temporary files
+# ==============================
+
+*.tmp
+*.temp
+*.swp
+
+# ==============================
+# Node / Frontend
+# ==============================
+node_modules/
+dist/
+dist-ssr/
+*.local
+.eslintcache
