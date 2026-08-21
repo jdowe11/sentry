@@ -4,8 +4,6 @@ title: "[CHORE] - "
 labels: [
   "chore"
 ]
-type: "Chore"
-projects: "Sentry"
 body:
   - type: textarea
     id: summary
