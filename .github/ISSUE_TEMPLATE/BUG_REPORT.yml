@@ -4,8 +4,6 @@ title: "[BUG] - "
 labels: [
   "bug"
 ]
-type: "Bug"
-projects: "Sentry"
 body:
   - type: textarea
     id: description

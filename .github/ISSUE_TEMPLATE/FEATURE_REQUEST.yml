@@ -4,8 +4,6 @@ title: "[FEATURE] - "
 labels: [
   "enhancement"
 ]
-type: "Feature"
-projects: "Sentry"
 body:
   - type: textarea
     id: summary
