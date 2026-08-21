@@ -1,0 +1,30 @@
+name: "Chore Request"
+description: Create a new ticket for a new feature request
+title: "[CHORE] - "
+labels: [
+  "chore"
+]
+type: "Chore"
+projects: "Sentry"
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Summary"
+      description: Provide a brief explanation of the chore
+      placeholder: Describe in a few lines your chore request
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: "Checklist"
+      description: List the checklist items the are required for this chore
+      value: |
+        ### Chore description
+        - [ ] Task 1
+        - [ ] Task 2
+        - [ ] Task 3
+                - [ ] Task 4
+    validations:
+      required: true
