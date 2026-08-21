@@ -24,14 +24,19 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                    "/swagger-ui.html",
                     "/swagger-ui/**",
+                    "/v3/api-docs",
                     "/v3/api-docs/**",
+                    "/swagger-resources",
                     "/swagger-resources/**",
-                    "/webjars/**"
+                    "/webjars/**",
+                    "/error"
                 ).permitAll()
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/api/status").permitAll()
-                .anyRequest().authenticated() // Or keep permitAll() depending on your security status
+                .requestMatchers("/api/v1.0/**").permitAll() // Temp permitted for local development ( WILL BE REMOVED IN THE FUTURE )
+                .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
