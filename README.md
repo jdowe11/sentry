@@ -38,6 +38,10 @@ npm run dev
 mvn spring-boot:run
 ```
 
+```bash
+mvn clean spring-boot:run # clean install
+```
+
 ### Database
 
 ```bash
