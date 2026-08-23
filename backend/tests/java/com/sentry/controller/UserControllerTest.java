@@ -56,7 +56,7 @@ public class UserControllerTest {
 
         when(userService.createUser(any(User.class))).thenReturn(savedUser);
 
-        mockMvc.perform(post("/api/v1.0/user")
+        mockMvc.perform(post("/api/v1.0/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(inputUser)))
                 .andExpect(status().isOk())
@@ -70,7 +70,7 @@ public class UserControllerTest {
 
         when(userService.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Invalid input"));
 
-        mockMvc.perform(post("/api/v1.0/user")
+        mockMvc.perform(post("/api/v1.0/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(inputUser)))
                 .andExpect(status().isBadRequest());
@@ -92,7 +92,7 @@ public class UserControllerTest {
 
         when(userService.getUserById(1L)).thenReturn(Optional.of(user));
 
-        mockMvc.perform(get("/api/v1.0/user/1")
+        mockMvc.perform(get("/api/v1.0/users/1")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("gamer123"))
@@ -103,7 +103,7 @@ public class UserControllerTest {
     public void testGetUserById_NotFound() throws Exception {
         when(userService.getUserById(99L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1.0/user/99")
+        mockMvc.perform(get("/api/v1.0/users/99")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -122,7 +122,7 @@ public class UserControllerTest {
 
         when(userService.getUserByUsername("findme")).thenReturn(Optional.of(user));
 
-        mockMvc.perform(get("/api/v1.0/user/username/findme"))
+        mockMvc.perform(get("/api/v1.0/users/username/findme"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(2))
                 .andExpect(jsonPath("$.username").value("findme"));
@@ -132,7 +132,7 @@ public class UserControllerTest {
     public void testGetUserByUsername_NotFound() throws Exception {
         when(userService.getUserByUsername("missing")).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1.0/user/username/missing"))
+        mockMvc.perform(get("/api/v1.0/users/username/missing"))
                 .andExpect(status().isNotFound());
     }
 
@@ -162,7 +162,7 @@ public class UserControllerTest {
     public void testDeleteUser_Success() throws Exception {
         doNothing().when(userService).deleteUser(1L);
 
-        mockMvc.perform(delete("/api/v1.0/user/1"))
+        mockMvc.perform(delete("/api/v1.0/users/1"))
                 .andExpect(status().isNoContent());
     }
 
@@ -170,7 +170,7 @@ public class UserControllerTest {
     public void testDeleteUser_Failure_BadRequest() throws Exception {
         doThrow(new IllegalArgumentException("Invalid ID")).when(userService).deleteUser(-1L);
 
-        mockMvc.perform(delete("/api/v1.0/user/-1"))
+        mockMvc.perform(delete("/api/v1.0/users/-1"))
                 .andExpect(status().isBadRequest());
     }
 }

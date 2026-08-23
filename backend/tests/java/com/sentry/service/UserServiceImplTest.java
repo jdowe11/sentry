@@ -1,5 +1,7 @@
 package com.sentry.service;
 
+import com.sentry.dto.UpdateDisplayNameRequest;
+import com.sentry.dto.UpdateUsernameRequest;
 import com.sentry.model.User;
 import com.sentry.repository.UserRepository;
 import com.sentry.service.serviceimpl.UserServiceImpl;
@@ -91,6 +93,22 @@ public class UserServiceImplTest {
         });
 
         assertEquals("Username cannot exceed 32 characters", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    public void testCreateUser_UsernameInvalidCharacters_ThrowsException() {
+        User user = User.builder()
+                .username("invalid user!")
+                .displayName("Test User")
+                .passwordHash("hashedpwd")
+                .build();
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.createUser(user);
+        });
+
+        assertEquals("Username can only contain alphanumeric characters, hyphens, and underscores", exception.getMessage());
         verify(userRepository, never()).save(any());
     }
 
@@ -283,5 +301,124 @@ public class UserServiceImplTest {
         assertThrows(IllegalArgumentException.class, () -> {
             userService.deleteUser(-10L);
         });
+    }
+
+    // ==========================================
+    // updateUsername Tests
+    // ==========================================
+
+    @Test
+    public void testUpdateUsername_Success() {
+        User existing = User.builder()
+                .id(1L)
+                .username("jose")
+                .displayName("Jose GOAT")
+                .passwordHash("pwd")
+                .build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UpdateUsernameRequest request = UpdateUsernameRequest.builder()
+                .newUsername("jose-new")
+                .build();
+
+        User updated = userService.updateUsername(1L, request);
+        assertEquals("jose-new", updated.getUsername());
+        assertEquals("Jose GOAT", updated.getDisplayName());
+    }
+
+    @Test
+    public void testUpdateUsername_InvalidId_ThrowsException() {
+        UpdateUsernameRequest request = UpdateUsernameRequest.builder().newUsername("username").build();
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(0L, request));
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(null, request));
+    }
+
+    @Test
+    public void testUpdateUsername_UserNotFound_ThrowsException() {
+        UpdateUsernameRequest request = UpdateUsernameRequest.builder().newUsername("username").build();
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(999L, request));
+    }
+
+    @Test
+    public void testUpdateUsername_InvalidUsername_ThrowsException() {
+        User existing = User.builder().id(1L).username("jose").build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        // Invalid regex
+        UpdateUsernameRequest invalidRegex = UpdateUsernameRequest.builder().newUsername("jose space").build();
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(1L, invalidRegex));
+
+        // Too long
+        UpdateUsernameRequest tooLong = UpdateUsernameRequest.builder().newUsername("thisusernameislongerthanthirtytwochars").build();
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(1L, tooLong));
+
+        // Blank
+        UpdateUsernameRequest blank = UpdateUsernameRequest.builder().newUsername("   ").build();
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(1L, blank));
+    }
+
+    @Test
+    public void testUpdateUsername_UsernameAlreadyTaken_ThrowsException() {
+        User existing = User.builder().id(1L).username("jose").build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(userRepository.existsByUsername("taken")).thenReturn(true);
+
+        UpdateUsernameRequest request = UpdateUsernameRequest.builder().newUsername("taken").build();
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(1L, request));
+    }
+
+    // ==========================================
+    // updateDisplayName Tests
+    // ==========================================
+
+    @Test
+    public void testUpdateDisplayName_Success() {
+        User existing = User.builder()
+                .id(1L)
+                .username("jose")
+                .displayName("Jose GOAT")
+                .passwordHash("pwd")
+                .build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UpdateDisplayNameRequest request = UpdateDisplayNameRequest.builder()
+                .newDisplayName("Jose updated")
+                .build();
+
+        User updated = userService.updateDisplayName(1L, request);
+        assertEquals("Jose updated", updated.getDisplayName());
+        assertEquals("jose", updated.getUsername());
+    }
+
+    @Test
+    public void testUpdateDisplayName_InvalidId_ThrowsException() {
+        UpdateDisplayNameRequest request = UpdateDisplayNameRequest.builder().newDisplayName("name").build();
+        assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(0L, request));
+        assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(null, request));
+    }
+
+    @Test
+    public void testUpdateDisplayName_UserNotFound_ThrowsException() {
+        UpdateDisplayNameRequest request = UpdateDisplayNameRequest.builder().newDisplayName("name").build();
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(999L, request));
+    }
+
+    @Test
+    public void testUpdateDisplayName_InvalidDisplayName_ThrowsException() {
+        User existing = User.builder().id(1L).username("jose").build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        // Blank
+        UpdateDisplayNameRequest blank = UpdateDisplayNameRequest.builder().newDisplayName("  ").build();
+        assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(1L, blank));
+
+        // Too long
+        UpdateDisplayNameRequest tooLong = UpdateDisplayNameRequest.builder()
+                .newDisplayName("thisdisplaynameislongerthanfiftycharactersforvalidationtesting").build();
+        assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(1L, tooLong));
     }
 }
