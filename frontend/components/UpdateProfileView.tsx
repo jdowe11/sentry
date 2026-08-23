@@ -1,74 +1,209 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { updateDisplayName, updateUsername } from "@/api/UserApi";
+import { User } from "@/api/UserApi";
+import ConfirmModal from "@/components/ConfirmModal";
 
-export default function UpdateProfileView() {
-  const { user, updateUser } = useAuth();
-
-  const [username, setUsername] = useState(user?.username ?? "");
-  const [displayName, setDisplayName] = useState(user?.displayName ?? "");
+// ─────────────────────────────────────────────
+// Reusable inline-edit field
+// ─────────────────────────────────────────────
+function InlineEditField({
+  label,
+  currentValue,
+  hint,
+  onSave,
+  validate,
+  confirmPrompt,
+}: {
+  label: string;
+  currentValue: string;
+  hint?: string;
+  onSave: (newValue: string) => Promise<void>;
+  validate?: (value: string) => string | null;
+  confirmPrompt?: { title: string; description?: string };
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(currentValue);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  if (!user) return null;
+  const startEditing = () => {
+    setDraft(currentValue);
+    setError(null);
+    setIsEditing(true);
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Only fires when focus genuinely leaves (not when clicking Save/Cancel,
+  // since those buttons use onMouseDown + preventDefault)
+  const handleBlur = () => {
+    if (!showConfirm) handleCancel();
+  };
 
-    if (!username.trim() || !displayName.trim()) {
-      setErrorMsg("Username and Display name cannot be blank.");
-      setSuccessMsg(null);
+  const handleCancel = () => {
+    setDraft(currentValue);
+    setIsEditing(false);
+    setError(null);
+    setShowConfirm(false);
+  };
+
+  // Called when Save is clicked — runs validation, then either opens
+  // the confirmation modal or proceeds directly with the API call
+  const handleSaveClick = () => {
+    const trimmed = draft.trim();
+
+    if (validate) {
+      const validationError = validate(trimmed);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+    }
+
+    if (trimmed === currentValue) {
+      setIsEditing(false);
       return;
     }
 
-    const usernameRegex = /^[a-zA-Z0-9-_]+$/;
-    if (!usernameRegex.test(username.trim())) {
-      setErrorMsg("Username can only contain alphanumeric characters, hyphens, and underscores.");
-      setSuccessMsg(null);
-      return;
+    if (confirmPrompt) {
+      setShowConfirm(true);
+    } else {
+      executeSave(trimmed);
     }
+  };
 
-    if (username.trim().length > 32) {
-      setErrorMsg("Username cannot exceed 32 characters.");
-      setSuccessMsg(null);
-      return;
-    }
-
-    if (displayName.trim().length > 50) {
-      setErrorMsg("Display name cannot exceed 50 characters.");
-      setSuccessMsg(null);
-      return;
-    }
-
+  const executeSave = async (value: string) => {
     setIsLoading(true);
-    setErrorMsg(null);
-    setSuccessMsg(null);
-
+    setError(null);
     try {
-      let updatedUser = user;
-
-      if (username.trim() !== user.username) {
-        updatedUser = await updateUsername(user.id, username.trim());
-      }
-
-      if (displayName.trim() !== user.displayName) {
-        updatedUser = await updateDisplayName(user.id, displayName.trim());
-      }
-
-      updateUser(updatedUser);
-      setSuccessMsg("Profile updated successfully!");
+      await onSave(value);
+      setIsEditing(false);
+      setShowConfirm(false);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setErrorMsg(err.message);
-      } else {
-        setErrorMsg("Failed to update profile.");
-      }
+      setShowConfirm(false);
+      setError(err instanceof Error ? err.message : "Failed to save changes.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  return (
+    <>
+      {/* Confirmation modal (portal-like, rendered above everything) */}
+      {showConfirm && confirmPrompt && (
+        <ConfirmModal
+          title={confirmPrompt.title}
+          description={confirmPrompt.description}
+          isLoading={isLoading}
+          onConfirm={() => executeSave(draft.trim())}
+          onCancel={() => {
+            setShowConfirm(false);
+            // Re-focus the input so the field stays in editing mode
+            setTimeout(() => inputRef.current?.focus(), 0);
+          }}
+        />
+      )}
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sentry-text-muted text-[11px] font-bold uppercase tracking-wider select-none">
+          {label}
+        </label>
+
+        <input
+          ref={inputRef}
+          type="text"
+          value={isEditing ? draft : currentValue}
+          readOnly={!isEditing}
+          onFocus={startEditing}
+          onBlur={isEditing ? handleBlur : undefined}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSaveClick();
+            if (e.key === "Escape") handleCancel();
+          }}
+          className={`w-full px-3 py-2 rounded border text-sm transition-all duration-150 outline-none ${
+            isEditing
+              ? "bg-sentry-input border-sentry-primary text-zinc-100"
+              : "bg-transparent border-transparent text-zinc-400 cursor-pointer hover:border-zinc-600 hover:text-zinc-200 hover:bg-zinc-800/30"
+          }`}
+        />
+
+        {error && (
+          <p className="text-[#F23F43] text-[11px] font-semibold mt-0.5">{error}</p>
+        )}
+
+        {hint && !isEditing && (
+          <p className="text-[11px] text-sentry-text-muted">{hint}</p>
+        )}
+
+        {isEditing && (
+          <div className="flex gap-2 justify-end mt-1 animate-in fade-in slide-in-from-top-1 duration-150">
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleCancel}
+              disabled={isLoading}
+              className="px-3 py-1 rounded text-xs font-semibold border border-[#F23F43]/40 text-[#F23F43] hover:bg-[#F23F43]/10 transition-all cursor-pointer disabled:opacity-50 active:scale-[0.97]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleSaveClick}
+              disabled={isLoading}
+              className="px-3 py-1 rounded text-xs font-semibold border border-[#23A55A]/40 text-[#23A55A] bg-[#23A55A]/10 hover:bg-[#23A55A]/20 transition-all cursor-pointer disabled:opacity-50 active:scale-[0.97]"
+            >
+              Save
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Profile settings page
+// ─────────────────────────────────────────────
+export default function UpdateProfileView() {
+  const { user, updateUser } = useAuth();
+  const [globalSuccess, setGlobalSuccess] = useState<string | null>(null);
+
+  if (!user) return null;
+
+  const handleSaveUsername = async (newUsername: string) => {
+    const updated: User = await updateUsername(user.id, newUsername);
+    updateUser(updated);
+    flashSuccess();
+  };
+
+  const handleSaveDisplayName = async (newDisplayName: string) => {
+    const updated: User = await updateDisplayName(user.id, newDisplayName);
+    updateUser(updated);
+    flashSuccess();
+  };
+
+  const flashSuccess = () => {
+    setGlobalSuccess("Saved!");
+    setTimeout(() => setGlobalSuccess(null), 2500);
+  };
+
+  const validateUsername = (val: string): string | null => {
+    if (!val) return "Username cannot be blank.";
+    if (val.length > 32) return "Username cannot exceed 32 characters.";
+    if (!/^[a-zA-Z0-9-_]+$/.test(val))
+      return "Only alphanumeric characters, hyphens, and underscores allowed.";
+    return null;
+  };
+
+  const validateDisplayName = (val: string): string | null => {
+    if (!val) return "Display name cannot be blank.";
+    if (val.length > 50) return "Display name cannot exceed 50 characters.";
+    return null;
   };
 
   return (
@@ -78,64 +213,37 @@ export default function UpdateProfileView() {
         <img src="/logo.png" alt="Sentry Logo" className="w-16 h-16 object-contain mb-3" />
         <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Profile Settings</h2>
         <p className="text-sentry-text-muted text-sm mt-1.5 text-center">
-          Update your public profile configuration.
+          Click a field to edit it.
         </p>
       </div>
 
-      {errorMsg && (
-        <div className="bg-[#F23F43]/10 border border-[#F23F43]/30 text-[#F23F43] rounded p-3 text-xs font-semibold leading-relaxed">
-          {errorMsg}
-        </div>
-      )}
-      {successMsg && (
-        <div className="bg-[#23A55A]/10 border border-[#23A55A]/30 text-[#23A55A] rounded p-3 text-xs font-semibold">
-          {successMsg}
+      {globalSuccess && (
+        <div className="bg-[#23A55A]/10 border border-[#23A55A]/30 text-[#23A55A] rounded p-2.5 text-xs font-semibold text-center animate-in fade-in duration-150">
+          ✓ {globalSuccess}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sentry-text-muted text-[11px] font-bold uppercase tracking-wider">
-            Username
-          </label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="e.g. jdizzle"
-            required
-            className="bg-sentry-input w-full p-2.5 rounded border border-black/30 focus:border-sentry-primary focus:outline-none text-zinc-100 placeholder-zinc-500 text-sm transition-all"
-          />
-          <p className="text-[11px] text-sentry-text-muted mt-1">
-            Alphanumeric characters, hyphens, and underscores only. Must be unique.
-          </p>
-        </div>
+      <div className="flex flex-col gap-5">
+        <InlineEditField
+          label="Username"
+          currentValue={user.username}
+          hint="Alphanumeric characters, hyphens, and underscores only. Must be unique."
+          onSave={handleSaveUsername}
+          validate={validateUsername}
+          confirmPrompt={{
+            title: "Are you sure?",
+            description: "Changing your username cannot be undone. Others may not be able to find you by your old username.",
+          }}
+        />
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sentry-text-muted text-[11px] font-bold uppercase tracking-wider">
-            Display Name
-          </label>
-          <input
-            type="text"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="e.g. Jose GOAT"
-            required
-            className="bg-sentry-input w-full p-2.5 rounded border border-black/30 focus:border-sentry-primary focus:outline-none text-zinc-100 placeholder-zinc-500 text-sm transition-all"
-          />
-          <p className="text-[11px] text-sentry-text-muted mt-1">
-            Your public display name. Can contain any characters up to 50.
-          </p>
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="bg-sentry-primary hover:bg-sentry-primary-hover disabled:opacity-50 text-white py-2.5 rounded font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer mt-2"
-        >
-          {isLoading ? "Saving changes..." : "Save Changes"}
-        </button>
-      </form>
+        <InlineEditField
+          label="Display Name"
+          currentValue={user.displayName}
+          hint="Your public display name. Can contain any characters up to 50."
+          onSave={handleSaveDisplayName}
+          validate={validateDisplayName}
+        />
+      </div>
     </div>
   );
 }

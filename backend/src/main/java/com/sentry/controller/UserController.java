@@ -17,7 +17,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    /// User Registration (replaces POST /user)
+    /// User Registration
     @PostMapping("/users")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
