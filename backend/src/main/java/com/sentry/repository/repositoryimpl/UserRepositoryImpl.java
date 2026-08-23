@@ -29,11 +29,11 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        if (user.getId() == null) {
+        if (user.getId() == null || user.getId() <= 0) {
             String sql = "INSERT INTO users (username, display_name, password_hash) VALUES (?, ?, ?)";
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id", "created_at"});
+                PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
                 ps.setString(1, user.getUsername());
                 ps.setString(2, user.getDisplayName());
                 ps.setString(3, user.getPasswordHash());
