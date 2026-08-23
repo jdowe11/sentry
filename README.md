@@ -38,6 +38,37 @@ npm run dev
 mvn spring-boot:run
 ```
 
+```bash
+mvn clean spring-boot:run # clean install
+```
+
+### Database
+
+```bash
+make build-db
+```
+
+### Testing
+
+#### Unit Testing
+
+```bash
+mvn test
+```
+
+#### Integration Testing
+
+```bash
+mvn verify
+```
+
+#### Test Coverage
+
+```bash
+mvn test -Pcoverage
+```
+
+
 ## License
 
 This project is licensed under the terms of the MIT license.
