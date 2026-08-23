@@ -10,6 +10,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Sentry custom color palette constants */
+  --color-sentry-bg: #313338;
+  --color-sentry-card: #2B2D31;
+  --color-sentry-input: #1E1F22;
+  --color-sentry-primary: #5865F2;
+  --color-sentry-primary-hover: #4752C4;
+  --color-sentry-text-muted: #B5BAC1;
+  --color-sentry-text-link: #00A8FC;
 }
 
 @media (prefers-color-scheme: dark) {
