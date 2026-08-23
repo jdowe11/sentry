@@ -62,10 +62,10 @@ mvn test
 mvn verify
 ```
 
-#### All Tests
+#### Test Coverage
 
 ```bash
-mvn test
+mvn test -Pcoverage
 ```
 
 
