@@ -1,6 +1,8 @@
 package com.sentry.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sentry.dto.UpdateDisplayNameRequest;
+import com.sentry.dto.UpdateUsernameRequest;
 import com.sentry.model.User;
 import com.sentry.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -15,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -171,6 +173,72 @@ public class UserControllerTest {
         doThrow(new IllegalArgumentException("Invalid ID")).when(userService).deleteUser(-1L);
 
         mockMvc.perform(delete("/api/v1.0/users/-1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    // ==========================================
+    // updateUsername Endpoint Tests
+    // ==========================================
+
+    @Test
+    public void testUpdateUsername_Success() throws Exception {
+        UpdateUsernameRequest payload = UpdateUsernameRequest.builder().newUsername("alice-new").build();
+        User updated = User.builder().id(1L).username("alice-new").displayName("Alice").build();
+
+        when(userService.updateUsername(eq(1L), any(UpdateUsernameRequest.class))).thenReturn(updated);
+
+        mockMvc.perform(patch("/api/v1.0/users/me/username")
+                .header("Authorization", "Bearer 1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("alice-new"));
+    }
+
+    @Test
+    public void testUpdateUsername_Failure() throws Exception {
+        UpdateUsernameRequest payload = UpdateUsernameRequest.builder().newUsername("alice space").build();
+
+        when(userService.updateUsername(eq(1L), any(UpdateUsernameRequest.class)))
+                .thenThrow(new IllegalArgumentException("Invalid username"));
+
+        mockMvc.perform(patch("/api/v1.0/users/me/username")
+                .header("Authorization", "Bearer 1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isBadRequest());
+    }
+
+    // ==========================================
+    // updateDisplayName Endpoint Tests
+    // ==========================================
+
+    @Test
+    public void testUpdateDisplayName_Success() throws Exception {
+        UpdateDisplayNameRequest payload = UpdateDisplayNameRequest.builder().newDisplayName("Alice Updated").build();
+        User updated = User.builder().id(1L).username("alice").displayName("Alice Updated").build();
+
+        when(userService.updateDisplayName(eq(1L), any(UpdateDisplayNameRequest.class))).thenReturn(updated);
+
+        mockMvc.perform(patch("/api/v1.0/users/me/display-name")
+                .header("Authorization", "Bearer 1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value("Alice Updated"));
+    }
+
+    @Test
+    public void testUpdateDisplayName_Failure() throws Exception {
+        UpdateDisplayNameRequest payload = UpdateDisplayNameRequest.builder().newDisplayName("").build();
+
+        when(userService.updateDisplayName(eq(1L), any(UpdateDisplayNameRequest.class)))
+                .thenThrow(new IllegalArgumentException("Display name cannot be blank"));
+
+        mockMvc.perform(patch("/api/v1.0/users/me/display-name")
+                .header("Authorization", "Bearer 1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
                 .andExpect(status().isBadRequest());
     }
 }

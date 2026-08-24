@@ -33,4 +33,7 @@ docker exec -i sentry-postgres psql -U "$POSTGRES_DB_USER" -d "$POSTGRES_DB_NAME
 echo "Seeding users..."
 docker exec -i sentry-postgres psql -U "$POSTGRES_DB_USER" -d "$POSTGRES_DB_NAME" < "$PROJECT_ROOT/database/seed-users.sql"
 
+echo "Seeding friend requests..."
+docker exec -i sentry-postgres psql -U "$POSTGRES_DB_USER" -d "$POSTGRES_DB_NAME" < "$PROJECT_ROOT/database/seed-friend-requests.sql"
+
 echo "Database initialization completed successfully!"

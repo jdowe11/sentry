@@ -45,6 +45,7 @@ public class User {
      * Cannot be empty.
      * Cannot be longer than 255 characters.
      */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String passwordHash;
 
     /*

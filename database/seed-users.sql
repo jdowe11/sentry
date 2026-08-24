@@ -1,5 +1,11 @@
 INSERT INTO users (username, display_name, password_hash)
 VALUES 
-('jdizzle', 'joseGOAT', '$2a$10$X87K.0a07E4/E8.o0tPee.ZgXF7p/L3bJ6s.X7o1c8Nq9jP5E32bC'),
-('alice', 'Alikeable', '$2a$10$X87K.0a07E4/E8.o0tPee.ZgXF7p/L3bJ6s.X7o1c8Nq9jP5E32bC')
+('jdizzle', 'joseGOAT', 'Password123!'),
+('alice', 'Alikeable', 'Password123!'),
+('bob', 'Builder', 'Password123!'),
+('charlie', 'Chocolate', 'Password123!'),
+('david', 'GoliathSlayer', 'Password123!'),
+('eve', 'GardenOfEve', 'Password123!'),
+('frank', 'Sinatra', 'Password123!'),
+('grace', 'Hopper', 'Password123!')
 ON CONFLICT (username) DO NOTHING;
