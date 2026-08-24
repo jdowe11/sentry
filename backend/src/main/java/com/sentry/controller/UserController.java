@@ -7,6 +7,7 @@ import com.sentry.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import static com.sentry.util.SecurityUtils.getUserIdFromAuthHeader;
 
 import java.util.List;
 
@@ -104,16 +105,4 @@ public class UserController {
         }
     }
 
-    // Helper to extract user ID from standard Authorization header
-    private Long getUserIdFromAuthHeader(String authHeader) {
-        if (authHeader == null || authHeader.trim().isEmpty()) {
-            throw new IllegalArgumentException("Missing Authorization header");
-        }
-        String token = authHeader.replace("Bearer ", "").trim();
-        try {
-            return Long.parseLong(token);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid Authorization token");
-        }
-    }
 }
