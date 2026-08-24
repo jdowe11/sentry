@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
@@ -39,7 +40,7 @@ export default function Sidebar() {
       <div className="flex flex-col">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-6 px-2 self-center md:self-start">
-          <img src="/logo.png" alt="Sentry Logo" className="w-8 h-8 object-contain" />
+          <Image src="/logo.png" alt="Sentry Logo" width={32} height={32} className="object-contain" />
           <span className="font-bold text-lg tracking-wide text-zinc-100">Sentry</span>
         </div>
 
