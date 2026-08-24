@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { updateDisplayName, updateUsername } from "@/api/UserApi";
 import { User } from "@/api/UserApi";
 import ConfirmModal from "@/components/ConfirmModal";
+import Image from "next/image";
 
 // ─────────────────────────────────────────────
 // Reusable inline-edit field
@@ -210,7 +211,7 @@ export default function UpdateProfileView() {
     <div className="bg-sentry-card w-full max-w-[480px] p-8 rounded-lg shadow-lg border border-black/20 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
 
       <div className="flex flex-col items-center">
-        <img src="/logo.png" alt="Sentry Logo" className="w-16 h-16 object-contain mb-3" />
+        <Image src="/logo.png" alt="Sentry Logo" width={64} height={64} className="object-contain mb-3" />
         <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Profile Settings</h2>
         <p className="text-sentry-text-muted text-sm mt-1.5 text-center">
           Click a field to edit it.

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { User } from "@/api/UserApi";
 import { loginUser } from "@/api/LoginApi";
+import Image from "next/image";
 
 interface LoginCardProps {
   onLoginSuccess: (user: User) => void;
@@ -43,10 +44,10 @@ export default function LoginCard({ onLoginSuccess, onToggleMode }: LoginCardPro
     <div className="bg-sentry-card w-full max-w-[480px] p-8 rounded-lg shadow-lg border border-black/20 flex flex-col gap-6 animate-in fade-in duration-200">
       
       <div className="flex flex-col items-center">
-        <img src="/logo.png" alt="Sentry Logo" className="w-16 h-16 object-contain mb-3" />
+        <Image src="/logo.png" alt="Sentry Logo" width={64} height={64} className="object-contain mb-3" />
         <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Welcome back!</h2>
         <p className="text-sentry-text-muted text-sm mt-1.5 text-center">
-          We're so excited to see you again!
+          {"We're so excited to see you again!"}
         </p>
       </div>
 

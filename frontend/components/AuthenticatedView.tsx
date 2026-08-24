@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 export default function AuthenticatedView() {
   const { user } = useAuth();
@@ -18,7 +19,7 @@ export default function AuthenticatedView() {
   return (
     <div className="bg-sentry-card w-full max-w-[480px] p-8 rounded-lg shadow-lg border border-black/20 flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-200">
 
-      <img src="/logo.png" alt="Sentry Logo" className="w-16 h-16 object-contain" />
+      <Image src="/logo.png" alt="Sentry Logo" width={64} height={64} className="object-contain" />
 
       <div className="w-16 h-16 bg-[#23A55A]/10 rounded-full flex items-center justify-center border border-[#23A55A]/30">
         <svg className="w-8 h-8 text-[#23A55A]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">

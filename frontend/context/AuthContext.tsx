@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem("sentry_user");
     if (saved) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setUser(JSON.parse(saved));
       } catch {
         localStorage.removeItem("sentry_user");

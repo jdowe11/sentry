@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { User, createUser, getUserByUsername } from "@/api/UserApi";
+import Image from "next/image";
 
 interface RegisterCardProps {
   onRegisterSuccess: (user: User) => void;
@@ -54,7 +55,7 @@ export default function RegisterCard({ onRegisterSuccess, onToggleMode }: Regist
         setRegisterStep(2);
         setErrorMsg(null);
       }
-    } catch (err) {
+    } catch {
       setErrorMsg("Unable to connect to backend server.");
     } finally {
       setIsLoading(false);
@@ -86,7 +87,7 @@ export default function RegisterCard({ onRegisterSuccess, onToggleMode }: Regist
 
       setSuccessMsg("Account created successfully!");
       onRegisterSuccess(createdUser);
-    } catch (err: any) {
+    } catch (err) {
       if (err instanceof Error) {
         setErrorMsg(err.message);
       } else {
@@ -101,7 +102,7 @@ export default function RegisterCard({ onRegisterSuccess, onToggleMode }: Regist
     <div className="bg-sentry-card w-full max-w-[480px] p-8 rounded-lg shadow-lg border border-black/20 flex flex-col gap-6 animate-in fade-in duration-200">
       
       <div className="flex flex-col items-center">
-        <img src="/logo.png" alt="Sentry Logo" className="w-16 h-16 object-contain mb-3" />
+        <Image src="/logo.png" alt="Sentry Logo" width={64} height={64} className="object-contain mb-3" />
         <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Create an account</h2>
         <p className="text-sentry-text-muted text-sm mt-1.5 text-center">
           Step {registerStep} of 2 - Setup your profile
