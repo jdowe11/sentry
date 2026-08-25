@@ -138,4 +138,31 @@ public class UserRepositoryTest {
         assertTrue(userRepository.existsByUsername("exists"));
         assertFalse(userRepository.existsByUsername("doesnotexist"));
     }
+
+    @Test
+    public void testSearchByUsername_Success() {
+        User u1 = User.builder().username("alice").displayName("Alice").passwordHash("pwd").build();
+        User u2 = User.builder().username("bob").displayName("Bob").passwordHash("pwd").build();
+        User u3 = User.builder().username("charlie").displayName("Charlie").passwordHash("pwd").build();
+        userRepository.save(u1);
+        userRepository.save(u2);
+        userRepository.save(u3);
+
+        // Substring case-insensitive match: "li" should match "alice" and "charlie"
+        List<User> matches1 = userRepository.searchByUsername("li");
+        assertEquals(2, matches1.size());
+        assertTrue(matches1.stream().anyMatch(u -> u.getUsername().equals("alice")));
+        assertTrue(matches1.stream().anyMatch(u -> u.getUsername().equals("charlie")));
+
+        // Case-insensitivity match: "BO" should match "bob"
+        List<User> matches2 = userRepository.searchByUsername("BO");
+        assertEquals(1, matches2.size());
+        assertEquals("bob", matches2.get(0).getUsername());
+    }
+
+    @Test
+    public void testSearchByUsername_NoMatches() {
+        List<User> matches = userRepository.searchByUsername("nonexistentquery");
+        assertTrue(matches.isEmpty());
+    }
 }

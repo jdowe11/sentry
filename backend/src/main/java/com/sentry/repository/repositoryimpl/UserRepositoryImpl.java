@@ -84,4 +84,11 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = "DELETE FROM users WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
+
+    @Override
+    public List<User> searchByUsername(String query) {
+        String sql = "SELECT * FROM users WHERE LOWER(username) LIKE ?";
+        String likeQuery = "%" + query.toLowerCase() + "%";
+        return jdbcTemplate.query(sql, userRowMapper, likeQuery);
+    }
 }

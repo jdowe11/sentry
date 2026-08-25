@@ -421,4 +421,33 @@ public class UserServiceImplTest {
                 .newDisplayName("thisdisplaynameislongerthanfiftycharactersforvalidationtesting").build();
         assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(1L, tooLong));
     }
+
+    // ==========================================
+    // searchUsers Tests
+    // ==========================================
+
+    @Test
+    public void testSearchUsers_Success() {
+        User alice = User.builder().id(1L).username("alice").displayName("Alice").build();
+        when(userRepository.searchByUsername("alice")).thenReturn(Arrays.asList(alice));
+
+        List<User> results = userService.searchUsers("alice");
+        assertEquals(1, results.size());
+        assertEquals("alice", results.get(0).getUsername());
+        verify(userRepository, times(1)).searchByUsername("alice");
+    }
+
+    @Test
+    public void testSearchUsers_NullQuery_ReturnsEmptyList() {
+        List<User> results = userService.searchUsers(null);
+        assertTrue(results.isEmpty());
+        verify(userRepository, never()).searchByUsername(anyString());
+    }
+
+    @Test
+    public void testSearchUsers_BlankQuery_ReturnsEmptyList() {
+        List<User> results = userService.searchUsers("   ");
+        assertTrue(results.isEmpty());
+        verify(userRepository, never()).searchByUsername(anyString());
+    }
 }

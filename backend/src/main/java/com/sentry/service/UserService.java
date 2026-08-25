@@ -14,4 +14,5 @@ public interface UserService {
     void deleteUser(Long id);
     User updateUsername(Long id, UpdateUsernameRequest request);
     User updateDisplayName(Long id, UpdateDisplayNameRequest request);
+    List<User> searchUsers(String query);
 }

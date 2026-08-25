@@ -105,4 +105,12 @@ public class UserController {
         }
     }
 
+    /// Search users by query
+    @GetMapping("/users/search")
+    public ResponseEntity<List<User>> searchUsers(@RequestParam("q") String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+        return ResponseEntity.ok(userService.searchUsers(query.trim()));
+    }
 }

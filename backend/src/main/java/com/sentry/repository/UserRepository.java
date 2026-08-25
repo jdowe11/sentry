@@ -11,4 +11,5 @@ public interface UserRepository {
     List<User> findAll();
     boolean existsByUsername(String username);
     void deleteById(Long id);
+    List<User> searchByUsername(String query);
 }
