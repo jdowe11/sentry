@@ -115,4 +115,10 @@ public class FriendRequestRepositoryImpl implements FriendRequestRepository {
         String sql = "DELETE FROM friend_requests WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
+
+    @Override
+    public void deleteBySenderIdAndReceiverId(Long senderId, Long receiverId) {
+        String sql = "DELETE FROM friend_requests WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)";
+        jdbcTemplate.update(sql, senderId, receiverId, receiverId, senderId);
+    }
 }

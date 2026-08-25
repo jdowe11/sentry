@@ -194,4 +194,18 @@ public class FriendRequestRepositoryTest {
         Optional<FriendRequest> found = friendRequestRepository.findById(saved.getId());
         assertFalse(found.isPresent());
     }
+
+    @Test
+    public void testDeleteBySenderIdAndReceiverId() {
+        FriendRequest request = FriendRequest.builder()
+                .senderId(alice.getId())
+                .receiverId(bob.getId())
+                .status("pending")
+                .build();
+        FriendRequest saved = friendRequestRepository.save(request);
+
+        assertTrue(friendRequestRepository.findById(saved.getId()).isPresent());
+        friendRequestRepository.deleteBySenderIdAndReceiverId(alice.getId(), bob.getId());
+        assertFalse(friendRequestRepository.findById(saved.getId()).isPresent());
+    }
 }
