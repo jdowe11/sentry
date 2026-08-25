@@ -23,3 +23,17 @@ CREATE TABLE friend_requests (
     CONSTRAINT check_sender_receiver_different CHECK(sender_id <> receiver_id)
 );
 
+DROP TABLE IF EXISTS friendships CASCADE;
+
+--- Table structure for friendships
+CREATE TABLE friendships (
+    user_id_1 BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id_2 BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (user_id_1, user_id_2),
+
+    CONSTRAINT check_user_order CHECK(user_id_1 < user_id_2)
+);
+
+CREATE INDEX idx_friendships_user_id_2 ON friendships(user_id_2);

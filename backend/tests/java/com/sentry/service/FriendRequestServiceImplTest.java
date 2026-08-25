@@ -27,6 +27,9 @@ public class FriendRequestServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private FriendshipService friendshipService;
+
     @InjectMocks
     private FriendRequestServiceImpl friendRequestService;
 
@@ -136,9 +139,11 @@ public class FriendRequestServiceImplTest {
         FriendRequest request = FriendRequest.builder().id(100L).senderId(2L).receiverId(1L).status("pending").build();
         when(friendRequestRepository.findById(100L)).thenReturn(Optional.of(request));
         when(friendRequestRepository.save(request)).thenAnswer(inv -> inv.getArgument(0));
+        when(friendshipService.addFriendship(2L, 1L)).thenReturn(null);
 
         FriendRequest result = friendRequestService.acceptFriendRequest(1L, 100L);
         assertEquals("accepted", result.getStatus());
+        verify(friendshipService, times(1)).addFriendship(2L, 1L);
     }
 
     @Test

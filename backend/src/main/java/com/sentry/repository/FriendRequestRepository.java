@@ -10,4 +10,6 @@ public interface FriendRequestRepository {
     Optional<FriendRequest> findBySenderAndReceiver(Long senderId, Long receiverId);
     List<FriendRequest> findPendingByUserId(Long userId);
     void deleteById(Long id);
+    /// Never called on friendrequest endpoints, is a job for deleting friends
+    void deleteBySenderIdAndReceiverId(Long senderId, Long receiverId);
 }
