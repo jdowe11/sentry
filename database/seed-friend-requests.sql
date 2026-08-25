@@ -8,5 +8,7 @@ VALUES
 (3, 5, 'declined'),  -- bob -> david
 (7, 6, 'cancelled'), -- frank -> eve
 (8, 4, 'pending'),   -- grace -> charlie
-(1, 3, 'pending')    -- jdizzle -> bob
+(1, 3, 'pending'),   -- jdizzle -> bob
+(1, 2, 'accepted'),  -- jdizzle -> alice
+(3, 4, 'accepted')   -- bob -> charlie
 ON CONFLICT (sender_id, receiver_id) DO NOTHING;
