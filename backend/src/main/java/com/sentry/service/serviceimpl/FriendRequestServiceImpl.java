@@ -8,6 +8,7 @@ import com.sentry.repository.UserRepository;
 import com.sentry.service.FriendRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.sentry.service.FriendshipService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,9 @@ public class FriendRequestServiceImpl implements FriendRequestService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private FriendshipService friendshipService;
 
     @Override
     public FriendRequest sendFriendRequest(Long senderId, String receiverUsername) {
@@ -79,7 +83,9 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         }
 
         request.setStatus("accepted");
-        return friendRequestRepository.save(request);
+        FriendRequest saved = friendRequestRepository.save(request);
+        friendshipService.addFriendship(request.getSenderId(), request.getReceiverId());
+        return saved;
     }
 
     @Override
