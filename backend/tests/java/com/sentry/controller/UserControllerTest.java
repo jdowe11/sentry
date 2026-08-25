@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -240,5 +241,28 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
                 .andExpect(status().isBadRequest());
+    }
+
+    // ==========================================
+    // searchUsers Endpoint Tests
+    // ==========================================
+
+    @Test
+    public void testSearchUsers_Success() throws Exception {
+        User u1 = User.builder().id(10L).username("user10").displayName("User Ten").build();
+        when(userService.searchUsers("ten")).thenReturn(List.of(u1));
+
+        mockMvc.perform(get("/api/v1.0/users/search").param("q", "ten"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].username").value("user10"))
+                .andExpect(jsonPath("$[0].displayName").value("User Ten"));
+    }
+
+    @Test
+    public void testSearchUsers_EmptyQuery() throws Exception {
+        mockMvc.perform(get("/api/v1.0/users/search").param("q", ""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 }

@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8080/api/v1.0";
+import { BASE_URL } from "./config";
 
 export interface User {
   id: number;
@@ -121,5 +121,29 @@ export async function updateDisplayName(userId: number, newDisplayName: string):
     throw new Error(errorText || "Failed to update display name.");
   }
 
+  return response.json();
+}
+
+/**
+ * Retrieves all users in the system.
+ * GET /users
+ */
+export async function getAllUsers(): Promise<User[]> {
+  const response = await fetch(`${BASE_URL}/users`);
+  if (!response.ok) {
+    throw new Error("Failed to load users list.");
+  }
+  return response.json();
+}
+
+/**
+ * Searches users dynamically by username or display name.
+ * GET /users/search?q={query}
+ */
+export async function searchUsers(query: string): Promise<User[]> {
+  const response = await fetch(`${BASE_URL}/users/search?q=${encodeURIComponent(query)}`);
+  if (!response.ok) {
+    throw new Error("Failed to search users.");
+  }
   return response.json();
 }

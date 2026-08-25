@@ -140,4 +140,12 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.save(existing);
     }
+
+    @Override
+    public List<User> searchUsers(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return List.of();
+        }
+        return userRepository.searchByUsername(query.trim());
+    }
 }
