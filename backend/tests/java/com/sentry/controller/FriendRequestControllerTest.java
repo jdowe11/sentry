@@ -22,8 +22,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.springframework.context.annotation.Import;
+
 @WebMvcTest(FriendRequestController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(com.sentry.config.WebConfig.class)
 public class FriendRequestControllerTest {
 
     @Autowired
@@ -63,7 +66,7 @@ public class FriendRequestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("You cannot send a friend request to yourself"));
+                .andExpect(jsonPath("$.message").value("You cannot send a friend request to yourself"));
     }
 
     @Test
@@ -186,6 +189,6 @@ public class FriendRequestControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(payload)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Unexpected status state"));
+                .andExpect(jsonPath("$.message").value("Unexpected status state"));
     }
 }
