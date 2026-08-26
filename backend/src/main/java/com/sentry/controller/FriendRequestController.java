@@ -1,17 +1,18 @@
 package com.sentry.controller;
 
+import com.sentry.annotation.CurrentUserId;
 import com.sentry.dto.FriendRequestResponse;
 import com.sentry.dto.SendFriendRequest;
 import com.sentry.dto.UpdateStatusRequest;
 import com.sentry.model.FriendRequest;
 import com.sentry.service.FriendRequestService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import static com.sentry.util.SecurityUtils.getUserIdFromAuthHeader;
 
 @RestController
 @RequestMapping("/api/v1.0")
@@ -23,21 +24,19 @@ public class FriendRequestController {
 
     @PostMapping("/friend-requests")
     public ResponseEntity<FriendRequest> sendFriendRequest(
-            @RequestHeader("Authorization") String authHeader,
+            @Parameter(hidden = true) @CurrentUserId Long userId,
             @Valid @RequestBody SendFriendRequest request
     ) {
-        Long userId = getUserIdFromAuthHeader(authHeader);
         FriendRequest fr = friendRequestService.sendFriendRequest(userId, request.getReceiverUsername());
         return ResponseEntity.ok(fr);
     }
 
     @PatchMapping("/friend-requests/{id}/status")
     public ResponseEntity<FriendRequest> updateFriendRequestStatus(
-            @RequestHeader("Authorization") String authHeader,
+            @Parameter(hidden = true) @CurrentUserId Long userId,
             @PathVariable @Min(1) Long id,
             @Valid @RequestBody UpdateStatusRequest request
     ) {
-        Long userId = getUserIdFromAuthHeader(authHeader);
         String status = request.getStatus().toLowerCase().trim();
 
         FriendRequest updated;
@@ -58,8 +57,7 @@ public class FriendRequestController {
     }
 
     @GetMapping("/friend-requests/pending")
-    public ResponseEntity<FriendRequestResponse> getPendingRequests(@RequestHeader("Authorization") String authHeader) {
-        Long userId = getUserIdFromAuthHeader(authHeader);
+    public ResponseEntity<FriendRequestResponse> getPendingRequests(@Parameter(hidden = true) @CurrentUserId Long userId) {
         FriendRequestResponse response = friendRequestService.getPendingRequests(userId);
         return ResponseEntity.ok(response);
     }

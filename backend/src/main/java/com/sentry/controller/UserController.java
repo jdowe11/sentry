@@ -1,15 +1,16 @@
 package com.sentry.controller;
 
+import com.sentry.annotation.CurrentUserId;
 import com.sentry.dto.UpdateDisplayNameRequest;
 import com.sentry.dto.UpdateUsernameRequest;
 import com.sentry.model.User;
 import com.sentry.service.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import static com.sentry.util.SecurityUtils.getUserIdFromAuthHeader;
 
 import java.util.List;
 
@@ -30,8 +31,7 @@ public class UserController {
 
     /// Retrieve currently authenticated user profile
     @GetMapping("/users/me")
-    public ResponseEntity<User> getMe(@RequestHeader("Authorization") String authHeader) {
-        Long userId = getUserIdFromAuthHeader(authHeader);
+    public ResponseEntity<User> getMe(@Parameter(hidden = true) @CurrentUserId Long userId) {
         return userService.getUserById(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -40,10 +40,9 @@ public class UserController {
     /// Update currently authenticated user's username
     @PatchMapping("/users/me/username")
     public ResponseEntity<User> updateUsername(
-            @RequestHeader("Authorization") String authHeader,
+            @Parameter(hidden = true) @CurrentUserId Long userId,
             @Valid @RequestBody UpdateUsernameRequest request
     ) {
-        Long userId = getUserIdFromAuthHeader(authHeader);
         User updated = userService.updateUsername(userId, request);
         return ResponseEntity.ok(updated);
     }
@@ -51,10 +50,9 @@ public class UserController {
     /// Update currently authenticated user's display name
     @PatchMapping("/users/me/display-name")
     public ResponseEntity<User> updateDisplayName(
-            @RequestHeader("Authorization") String authHeader,
+            @Parameter(hidden = true) @CurrentUserId Long userId,
             @Valid @RequestBody UpdateDisplayNameRequest request
     ) {
-        Long userId = getUserIdFromAuthHeader(authHeader);
         User updated = userService.updateDisplayName(userId, request);
         return ResponseEntity.ok(updated);
     }
