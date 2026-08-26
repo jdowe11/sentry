@@ -129,4 +129,63 @@ public class FriendRequestControllerTest {
                 .andExpect(jsonPath("$.incoming[0].id").value(5))
                 .andExpect(jsonPath("$.outgoing[0].id").value(6));
     }
+
+    @Test
+    public void testSendFriendRequest_BlankReceiverUsername() throws Exception {
+        SendFriendRequest payload = SendFriendRequest.builder().receiverUsername("  ").build();
+
+        mockMvc.perform(post("/api/v1.0/friend-requests")
+                .header("Authorization", "Bearer 1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testSendFriendRequest_UsernameTooShort() throws Exception {
+        SendFriendRequest payload = SendFriendRequest.builder().receiverUsername("ab").build();
+
+        mockMvc.perform(post("/api/v1.0/friend-requests")
+                .header("Authorization", "Bearer 1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testUpdateFriendRequestStatus_InvalidStatus() throws Exception {
+        UpdateStatusRequest payload = UpdateStatusRequest.builder().status("invalid_status_here").build();
+
+        mockMvc.perform(patch("/api/v1.0/friend-requests/10/status")
+                .header("Authorization", "Bearer 1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testUpdateFriendRequestStatus_BlankStatus() throws Exception {
+        UpdateStatusRequest payload = UpdateStatusRequest.builder().status("   ").build();
+
+        mockMvc.perform(patch("/api/v1.0/friend-requests/10/status")
+                .header("Authorization", "Bearer 1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testUpdateFriendRequestStatus_IllegalStateException() throws Exception {
+        UpdateStatusRequest payload = UpdateStatusRequest.builder().status("accepted").build();
+
+        when(friendRequestService.acceptFriendRequest(anyLong(), anyLong()))
+                .thenThrow(new IllegalStateException("Unexpected status state"));
+
+        mockMvc.perform(patch("/api/v1.0/friend-requests/10/status")
+                .header("Authorization", "Bearer 1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Unexpected status state"));
+    }
 }
