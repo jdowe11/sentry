@@ -54,13 +54,6 @@ public class FriendshipServiceImplTest {
     }
 
     @Test
-    public void testAddFriendship_InvalidIds_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> friendshipService.addFriendship(null, 2L));
-        assertThrows(IllegalArgumentException.class, () -> friendshipService.addFriendship(1L, 0L));
-        assertThrows(IllegalArgumentException.class, () -> friendshipService.addFriendship(-5L, 2L));
-    }
-
-    @Test
     public void testAddFriendship_SelfFriendship_ThrowsException() {
         assertThrows(IllegalArgumentException.class, () -> friendshipService.addFriendship(1L, 1L));
     }

@@ -43,12 +43,6 @@ public class UserControllerTest {
 
     @Test
     public void testCreateUser_Success() throws Exception {
-        User inputUser = User.builder()
-                .username("newguy")
-                .displayName("New Guy")
-                .passwordHash("hashed")
-                .build();
-
         User savedUser = User.builder()
                 .id(5L)
                 .username("newguy")
@@ -59,9 +53,11 @@ public class UserControllerTest {
 
         when(userService.createUser(any(User.class))).thenReturn(savedUser);
 
+        String rawJson = "{\"username\":\"newguy\",\"displayName\":\"New Guy\",\"passwordHash\":\"hashed\"}";
+
         mockMvc.perform(post("/api/v1.0/users")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(inputUser)))
+                .content(rawJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(5))
                 .andExpect(jsonPath("$.username").value("newguy"));
@@ -70,8 +66,6 @@ public class UserControllerTest {
     @Test
     public void testCreateUser_Failure_BadRequest() throws Exception {
         User inputUser = User.builder().username("").displayName("").build();
-
-        when(userService.createUser(any(User.class))).thenThrow(new IllegalArgumentException("Invalid input"));
 
         mockMvc.perform(post("/api/v1.0/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -200,9 +194,6 @@ public class UserControllerTest {
     public void testUpdateUsername_Failure() throws Exception {
         UpdateUsernameRequest payload = UpdateUsernameRequest.builder().newUsername("alice space").build();
 
-        when(userService.updateUsername(eq(1L), any(UpdateUsernameRequest.class)))
-                .thenThrow(new IllegalArgumentException("Invalid username"));
-
         mockMvc.perform(patch("/api/v1.0/users/me/username")
                 .header("Authorization", "Bearer 1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -233,9 +224,6 @@ public class UserControllerTest {
     public void testUpdateDisplayName_Failure() throws Exception {
         UpdateDisplayNameRequest payload = UpdateDisplayNameRequest.builder().newDisplayName("").build();
 
-        when(userService.updateDisplayName(eq(1L), any(UpdateDisplayNameRequest.class)))
-                .thenThrow(new IllegalArgumentException("Display name cannot be blank"));
-
         mockMvc.perform(patch("/api/v1.0/users/me/display-name")
                 .header("Authorization", "Bearer 1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -264,5 +252,41 @@ public class UserControllerTest {
         mockMvc.perform(get("/api/v1.0/users/search").param("q", ""))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    public void testCreateUser_UsernameTooLong() throws Exception {
+        String json = "{\"username\":\"thisusernameislongerthanthirtytwocharslong\",\"displayName\":\"Good Name\",\"passwordHash\":\"pwd\"}";
+        mockMvc.perform(post("/api/v1.0/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testCreateUser_UsernameInvalidCharacters() throws Exception {
+        String json = "{\"username\":\"invalid user!\",\"displayName\":\"Good Name\",\"passwordHash\":\"pwd\"}";
+        mockMvc.perform(post("/api/v1.0/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testCreateUser_DisplayNameBlank() throws Exception {
+        String json = "{\"username\":\"goodusername\",\"displayName\":\"   \",\"passwordHash\":\"pwd\"}";
+        mockMvc.perform(post("/api/v1.0/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testCreateUser_DisplayNameTooLong() throws Exception {
+        String json = "{\"username\":\"goodusername\",\"displayName\":\"thisdisplaynameislongerthanfiftycharacterslongtobedureaboutlimit\",\"passwordHash\":\"pwd\"}";
+        mockMvc.perform(post("/api/v1.0/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest());
     }
 }

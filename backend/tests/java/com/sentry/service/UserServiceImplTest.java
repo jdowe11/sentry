@@ -27,10 +27,6 @@ public class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl userService;
 
-    // ==========================================
-    // createUser Tests
-    // ==========================================
-
     @Test
     public void testCreateUser_Success() {
         User user = User.builder()
@@ -46,134 +42,6 @@ public class UserServiceImplTest {
         assertNotNull(created);
         assertEquals("testuser", created.getUsername());
         verify(userRepository, times(1)).save(user);
-    }
-
-    @Test
-    public void testCreateUser_NullUsername_ThrowsException() {
-        User user = User.builder()
-                .username(null)
-                .displayName("Test User")
-                .passwordHash("hashedpwd")
-                .build();
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.createUser(user);
-        });
-
-        assertEquals("Username cannot be blank", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    public void testCreateUser_BlankUsername_ThrowsException() {
-        User user = User.builder()
-                .username("   ")
-                .displayName("Test User")
-                .passwordHash("hashedpwd")
-                .build();
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.createUser(user);
-        });
-
-        assertEquals("Username cannot be blank", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    public void testCreateUser_UsernameTooLong_ThrowsException() {
-        User user = User.builder()
-                .username("thisusernameislongerthanthirtytwocharslong")
-                .displayName("Test User")
-                .passwordHash("hashedpwd")
-                .build();
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.createUser(user);
-        });
-
-        assertEquals("Username cannot exceed 32 characters", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    public void testCreateUser_UsernameInvalidCharacters_ThrowsException() {
-        User user = User.builder()
-                .username("invalid user!")
-                .displayName("Test User")
-                .passwordHash("hashedpwd")
-                .build();
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.createUser(user);
-        });
-
-        assertEquals("Username can only contain alphanumeric characters, hyphens, and underscores", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    public void testCreateUser_NullDisplayName_ThrowsException() {
-        User user = User.builder()
-                .username("testuser")
-                .displayName(null)
-                .passwordHash("hashedpwd")
-                .build();
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.createUser(user);
-        });
-
-        assertEquals("Display name cannot be blank", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    public void testCreateUser_BlankDisplayName_ThrowsException() {
-        User user = User.builder()
-                .username("testuser")
-                .displayName("   ")
-                .passwordHash("hashedpwd")
-                .build();
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.createUser(user);
-        });
-
-        assertEquals("Display name cannot be blank", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    public void testCreateUser_DisplayNameTooLong_ThrowsException() {
-        User user = User.builder()
-                .username("testuser")
-                .displayName("thisdisplaynameislongerthanfiftycharacterslongtobedureaboutlimit")
-                .passwordHash("hashedpwd")
-                .build();
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.createUser(user);
-        });
-
-        assertEquals("Display name cannot exceed 50 characters", exception.getMessage());
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    public void testCreateUser_NullPasswordHash_ThrowsException() {
-        User user = User.builder()
-                .username("testuser")
-                .displayName("Test User")
-                .passwordHash(null)
-                .build();
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.createUser(user);
-        });
-
-        assertEquals("Password hash cannot be blank", exception.getMessage());
-        verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -194,10 +62,6 @@ public class UserServiceImplTest {
         verify(userRepository, never()).save(any());
     }
 
-    // ==========================================
-    // getUserById Tests
-    // ==========================================
-
     @Test
     public void testGetUserById_Success() {
         User user = User.builder().id(1L).username("testuser").build();
@@ -209,25 +73,10 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testGetUserById_NullId_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.getUserById(null);
-        });
-    }
-
-    @Test
     public void testGetUserById_InvalidId_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.getUserById(0L);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.getUserById(-5L);
-        });
+        assertThrows(IllegalArgumentException.class, () -> userService.getUserById(null));
+        assertThrows(IllegalArgumentException.class, () -> userService.getUserById(0L));
     }
-
-    // ==========================================
-    // getUserByUsername Tests
-    // ==========================================
 
     @Test
     public void testGetUserByUsername_Success() {
@@ -240,31 +89,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testGetUserByUsername_NullUsername_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.getUserByUsername(null);
-        });
-    }
-
-    @Test
-    public void testGetUserByUsername_BlankUsername_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.getUserByUsername("   ");
-        });
-    }
-
-    @Test
-    public void testGetUserByUsername_UsernameTooLong_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.getUserByUsername("thisusernameislongerthanthirtytwocharslong");
-        });
-    }
-
-    // ==========================================
-    // getAllUsers Tests
-    // ==========================================
-
-    @Test
     public void testGetAllUsers_Success() {
         User u1 = User.builder().id(1L).username("user1").build();
         User u2 = User.builder().id(2L).username("user2").build();
@@ -275,37 +99,12 @@ public class UserServiceImplTest {
         assertEquals("user1", list.get(0).getUsername());
     }
 
-    // ==========================================
-    // deleteUser Tests
-    // ==========================================
-
     @Test
     public void testDeleteUser_Success() {
         doNothing().when(userRepository).deleteById(1L);
         assertDoesNotThrow(() -> userService.deleteUser(1L));
         verify(userRepository, times(1)).deleteById(1L);
     }
-
-    @Test
-    public void testDeleteUser_NullId_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.deleteUser(null);
-        });
-    }
-
-    @Test
-    public void testDeleteUser_InvalidId_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.deleteUser(0L);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.deleteUser(-10L);
-        });
-    }
-
-    // ==========================================
-    // updateUsername Tests
-    // ==========================================
 
     @Test
     public void testUpdateUsername_Success() {
@@ -328,35 +127,10 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testUpdateUsername_InvalidId_ThrowsException() {
-        UpdateUsernameRequest request = UpdateUsernameRequest.builder().newUsername("username").build();
-        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(0L, request));
-        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(null, request));
-    }
-
-    @Test
     public void testUpdateUsername_UserNotFound_ThrowsException() {
         UpdateUsernameRequest request = UpdateUsernameRequest.builder().newUsername("username").build();
         when(userRepository.findById(999L)).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(999L, request));
-    }
-
-    @Test
-    public void testUpdateUsername_InvalidUsername_ThrowsException() {
-        User existing = User.builder().id(1L).username("jose").build();
-        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
-
-        // Invalid regex
-        UpdateUsernameRequest invalidRegex = UpdateUsernameRequest.builder().newUsername("jose space").build();
-        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(1L, invalidRegex));
-
-        // Too long
-        UpdateUsernameRequest tooLong = UpdateUsernameRequest.builder().newUsername("thisusernameislongerthanthirtytwochars").build();
-        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(1L, tooLong));
-
-        // Blank
-        UpdateUsernameRequest blank = UpdateUsernameRequest.builder().newUsername("   ").build();
-        assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(1L, blank));
     }
 
     @Test
@@ -368,10 +142,6 @@ public class UserServiceImplTest {
         UpdateUsernameRequest request = UpdateUsernameRequest.builder().newUsername("taken").build();
         assertThrows(IllegalArgumentException.class, () -> userService.updateUsername(1L, request));
     }
-
-    // ==========================================
-    // updateDisplayName Tests
-    // ==========================================
 
     @Test
     public void testUpdateDisplayName_Success() {
@@ -394,37 +164,11 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testUpdateDisplayName_InvalidId_ThrowsException() {
-        UpdateDisplayNameRequest request = UpdateDisplayNameRequest.builder().newDisplayName("name").build();
-        assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(0L, request));
-        assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(null, request));
-    }
-
-    @Test
     public void testUpdateDisplayName_UserNotFound_ThrowsException() {
         UpdateDisplayNameRequest request = UpdateDisplayNameRequest.builder().newDisplayName("name").build();
         when(userRepository.findById(999L)).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(999L, request));
     }
-
-    @Test
-    public void testUpdateDisplayName_InvalidDisplayName_ThrowsException() {
-        User existing = User.builder().id(1L).username("jose").build();
-        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
-
-        // Blank
-        UpdateDisplayNameRequest blank = UpdateDisplayNameRequest.builder().newDisplayName("  ").build();
-        assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(1L, blank));
-
-        // Too long
-        UpdateDisplayNameRequest tooLong = UpdateDisplayNameRequest.builder()
-                .newDisplayName("thisdisplaynameislongerthanfiftycharactersforvalidationtesting").build();
-        assertThrows(IllegalArgumentException.class, () -> userService.updateDisplayName(1L, tooLong));
-    }
-
-    // ==========================================
-    // searchUsers Tests
-    // ==========================================
 
     @Test
     public void testSearchUsers_Success() {

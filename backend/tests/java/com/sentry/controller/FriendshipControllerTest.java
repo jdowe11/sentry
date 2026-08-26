@@ -53,4 +53,12 @@ public class FriendshipControllerTest {
 
         verify(friendshipService, times(1)).removeFriendship(1L, 2L);
     }
+
+    @Test
+    public void testRemoveFriend_InvalidId_BadRequest() throws Exception {
+        mockMvc.perform(delete("/api/v1.0/friends/0")
+                        .header("Authorization", "Bearer 1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 }

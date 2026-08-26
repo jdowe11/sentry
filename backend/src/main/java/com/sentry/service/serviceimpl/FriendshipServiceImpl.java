@@ -27,9 +27,6 @@ public class FriendshipServiceImpl implements FriendshipService {
     @Override
     @Transactional
     public Friendship addFriendship(Long userId1, Long userId2) {
-        if (userId1 == null || userId1 <= 0 || userId2 == null || userId2 <= 0) {
-            throw new IllegalArgumentException("User IDs must be positive and non-null");
-        }
         if (userId1.equals(userId2)) {
             throw new IllegalArgumentException("Cannot create a friendship with oneself");
         }
@@ -53,9 +50,6 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public List<User> getFriendsList(Long userId) {
-        if (userId == null || userId <= 0) {
-            throw new IllegalArgumentException("User ID must be positive and non-null");
-        }
         userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " not found"));
 
@@ -65,10 +59,6 @@ public class FriendshipServiceImpl implements FriendshipService {
     @Override
     @Transactional
     public void removeFriendship(Long userId, Long friendId) {
-        if (userId == null || userId <= 0 || friendId == null || friendId <= 0) {
-            throw new IllegalArgumentException("User IDs must be positive and non-null");
-        }
-
         // Verify users exist
         userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " not found"));

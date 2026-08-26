@@ -19,24 +19,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be blank");
-        }
-        if (user.getUsername().length() > 32) {
-            throw new IllegalArgumentException("Username cannot exceed 32 characters");
-        }
-        if (!user.getUsername().matches("^[a-zA-Z0-9-_]+$")) {
-            throw new IllegalArgumentException("Username can only contain alphanumeric characters, hyphens, and underscores");
-        }
-        if (user.getDisplayName() == null || user.getDisplayName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Display name cannot be blank");
-        }
-        if (user.getDisplayName().length() > 50) {
-            throw new IllegalArgumentException("Display name cannot exceed 50 characters");
-        }
-        if (user.getPasswordHash() == null || user.getPasswordHash().trim().isEmpty()) {
-            throw new IllegalArgumentException("Password hash cannot be blank");
-        }
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException("Username already exists");
         }
@@ -45,14 +27,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> getUserById(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID cannot be null");
-        }
-        if (id <= 0) {
-            throw new IllegalArgumentException("ID must be greater than 0");
-        }
-        if (!(id instanceof Long)) {
-            throw new IllegalArgumentException("ID must be a long");
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Invalid user ID");
         }
         return userRepository.findById(id);
     }
@@ -62,10 +38,7 @@ public class UserServiceImpl implements UserService {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be blank");
         }
-        if(username.length() > 32) {
-            throw new IllegalArgumentException("Username cannot exceed 32 characters");
-        }
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username.trim());
     }
 
     @Override
@@ -75,14 +48,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID cannot be null");
-        }
-        if (id <= 0) {
-            throw new IllegalArgumentException("ID must be greater than 0");
-        }
-        if (!(id instanceof Long)) {
-            throw new IllegalArgumentException("ID must be a long");
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Invalid user ID");
         }
         userRepository.deleteById(id);
     }
@@ -95,19 +62,7 @@ public class UserServiceImpl implements UserService {
         User existing = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (request.getNewUsername() == null) {
-            throw new IllegalArgumentException("Username cannot be blank");
-        }
         String newUsername = request.getNewUsername().trim();
-        if (newUsername.isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be blank");
-        }
-        if (newUsername.length() > 32) {
-            throw new IllegalArgumentException("Username cannot exceed 32 characters");
-        }
-        if (!newUsername.matches("^[a-zA-Z0-9-_]+$")) {
-            throw new IllegalArgumentException("Username can only contain alphanumeric characters, hyphens, and underscores");
-        }
         if (!existing.getUsername().equals(newUsername)) {
             if (userRepository.existsByUsername(newUsername)) {
                 throw new IllegalArgumentException("Username is already taken");
@@ -126,16 +81,7 @@ public class UserServiceImpl implements UserService {
         User existing = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (request.getNewDisplayName() == null) {
-            throw new IllegalArgumentException("Display name cannot be blank");
-        }
         String newDisplayName = request.getNewDisplayName().trim();
-        if (newDisplayName.isEmpty()) {
-            throw new IllegalArgumentException("Display name cannot be blank");
-        }
-        if (newDisplayName.length() > 50) {
-            throw new IllegalArgumentException("Display name cannot exceed 50 characters");
-        }
         existing.setDisplayName(newDisplayName);
 
         return userRepository.save(existing);
