@@ -4,8 +4,10 @@ import com.sentry.dto.UpdateDisplayNameRequest;
 import com.sentry.dto.UpdateUsernameRequest;
 import com.sentry.model.User;
 import com.sentry.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import static com.sentry.util.SecurityUtils.getUserIdFromAuthHeader;
 
@@ -13,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1.0")
+@Validated
 public class UserController {
 
     @Autowired
@@ -20,56 +23,40 @@ public class UserController {
 
     /// User Registration
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        try {
-            User created = userService.createUser(user);
-            return ResponseEntity.ok(created);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+        User created = userService.createUser(user);
+        return ResponseEntity.ok(created);
     }
 
     /// Retrieve currently authenticated user profile
     @GetMapping("/users/me")
     public ResponseEntity<User> getMe(@RequestHeader("Authorization") String authHeader) {
-        try {
-            Long userId = getUserIdFromAuthHeader(authHeader);
-            return userService.getUserById(userId)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Long userId = getUserIdFromAuthHeader(authHeader);
+        return userService.getUserById(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /// Update currently authenticated user's username
     @PatchMapping("/users/me/username")
     public ResponseEntity<User> updateUsername(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody UpdateUsernameRequest request
+            @Valid @RequestBody UpdateUsernameRequest request
     ) {
-        try {
-            Long userId = getUserIdFromAuthHeader(authHeader);
-            User updated = userService.updateUsername(userId, request);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Long userId = getUserIdFromAuthHeader(authHeader);
+        User updated = userService.updateUsername(userId, request);
+        return ResponseEntity.ok(updated);
     }
 
     /// Update currently authenticated user's display name
     @PatchMapping("/users/me/display-name")
     public ResponseEntity<User> updateDisplayName(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody UpdateDisplayNameRequest request
+            @Valid @RequestBody UpdateDisplayNameRequest request
     ) {
-        try {
-            Long userId = getUserIdFromAuthHeader(authHeader);
-            User updated = userService.updateDisplayName(userId, request);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Long userId = getUserIdFromAuthHeader(authHeader);
+        User updated = userService.updateDisplayName(userId, request);
+        return ResponseEntity.ok(updated);
     }
 
     /// Retrieve a user by id
@@ -97,12 +84,8 @@ public class UserController {
     /// Delete a user by id
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        try {
-            userService.deleteUser(id);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
     /// Search users by query
