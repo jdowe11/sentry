@@ -1,5 +1,7 @@
 "use client";
 
+import Button from "./Button";
+
 interface ConfirmModalProps {
   title: string;
   description?: string;
@@ -55,20 +57,22 @@ export default function ConfirmModal({
         </div>
 
         <div className="flex gap-3">
-          <button
+          <Button
+            variant="secondary"
             onClick={onCancel}
             disabled={isLoading}
-            className="flex-1 border border-zinc-600 hover:bg-zinc-700/40 text-zinc-300 py-2.5 rounded font-semibold text-sm transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50"
+            className="flex-1"
           >
             {cancelLabel}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
             onClick={onConfirm}
-            disabled={isLoading}
-            className="flex-1 bg-sentry-primary hover:bg-sentry-primary-hover text-white py-2.5 rounded font-semibold text-sm transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50"
+            isLoading={isLoading}
+            className="flex-1"
           >
-            {isLoading ? "Loading…" : confirmLabel}
-          </button>
+            {confirmLabel}
+          </Button>
         </div>
       </div>
     </div>

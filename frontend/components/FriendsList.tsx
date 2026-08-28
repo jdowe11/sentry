@@ -6,7 +6,6 @@ import { User } from "@/api/UserApi";
 import {
   getPendingRequests,
   updateFriendRequestStatus,
-  FriendRequest,
 } from "@/api/FriendRequestApi";
 import {
   getFriends,
@@ -15,6 +14,7 @@ import {
 import AddFriendModal from "./AddFriendModal";
 import UnfriendConfirmModal from "./UnfriendConfirmModal";
 import SkeletonLoader from "./SkeletonLoader";
+import Button from "./Button";
 import { useDataLoader } from "@/hooks/useDataLoader";
 
 type TabType = "friends" | "incoming" | "outgoing";
@@ -27,6 +27,10 @@ export default function FriendsList() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUnfriendModalOpen, setIsUnfriendModalOpen] = useState(false);
   const [unfriendTarget, setUnfriendTarget] = useState<User | null>(null);
+
+  // Loading state trackers for button disablers
+  const [processingActionId, setProcessingActionId] = useState<number | null>(null);
+  const [isUnfriendLoading, setIsUnfriendLoading] = useState(false);
 
   // Fetch pending requests and friends list in parallel
   const fetchAllData = useCallback(async () => {
@@ -50,12 +54,15 @@ export default function FriendsList() {
 
   // Handle updating status (accept, decline, cancel)
   const handleStatusUpdate = async (requestId: number, action: "accepted" | "declined" | "cancelled") => {
-    if (!user) return;
+    if (!user || processingActionId !== null) return;
+    setProcessingActionId(requestId);
     try {
       await updateFriendRequestStatus(user.id, requestId, action);
-      loadData();
+      await loadData();
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to update request.");
+    } finally {
+      setProcessingActionId(null);
     }
   };
 
@@ -67,12 +74,17 @@ export default function FriendsList() {
 
   // Handle removing a friend relationship from confirmation modal
   const handleRemoveConfirm = async () => {
-    if (!user || !unfriendTarget) return;
+    if (!user || !unfriendTarget || isUnfriendLoading) return;
+    setIsUnfriendLoading(true);
     try {
       await removeFriend(user.id, unfriendTarget.id);
-      loadData();
+      await loadData();
+      setIsUnfriendModalOpen(false);
+      setUnfriendTarget(null);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to unfriend user.");
+    } finally {
+      setIsUnfriendLoading(false);
     }
   };
 
@@ -197,12 +209,14 @@ export default function FriendsList() {
                         @{friend.username}
                       </span>
                     </div>
-                    <button
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => triggerRemoveFriend(friend)}
-                      className="bg-zinc-700 hover:bg-[#F23F43] hover:text-white text-zinc-300 px-3 py-1.5 rounded text-xs font-bold transition-all active:scale-[0.97] cursor-pointer"
+                      disabled={processingActionId !== null || isUnfriendLoading}
                     >
                       Unfriend
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -237,18 +251,23 @@ export default function FriendsList() {
                       </span>
                     </div>
                     <div className="flex gap-2">
-                      <button
+                      <Button
+                        variant="success"
+                        size="sm"
                         onClick={() => handleStatusUpdate(req.id, "accepted")}
-                        className="bg-[#23A55A] hover:bg-[#1a7e44] text-white px-3 py-1.5 rounded text-xs font-bold transition-all active:scale-[0.97] cursor-pointer"
+                        isLoading={processingActionId === req.id}
+                        disabled={processingActionId !== null && processingActionId !== req.id || isUnfriendLoading}
                       >
                         Accept
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => handleStatusUpdate(req.id, "declined")}
-                        className="bg-zinc-700 hover:bg-zinc-600 text-zinc-200 px-3 py-1.5 rounded text-xs font-bold transition-all active:scale-[0.97] cursor-pointer"
+                        disabled={processingActionId !== null || isUnfriendLoading}
                       >
                         Decline
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -283,12 +302,15 @@ export default function FriendsList() {
                         @{req.receiver?.username}
                       </span>
                     </div>
-                    <button
+                    <Button
+                      variant="danger-outline"
+                      size="sm"
                       onClick={() => handleStatusUpdate(req.id, "cancelled")}
-                      className="border border-[#F23F43]/40 text-[#F23F43] hover:bg-[#F23F43]/10 px-3 py-1.5 rounded text-xs font-bold transition-all active:scale-[0.97] cursor-pointer"
+                      isLoading={processingActionId === req.id}
+                      disabled={processingActionId !== null && processingActionId !== req.id || isUnfriendLoading}
                     >
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -314,12 +336,15 @@ export default function FriendsList() {
       <UnfriendConfirmModal
         isOpen={isUnfriendModalOpen}
         onClose={() => {
-          setIsUnfriendModalOpen(false);
-          setUnfriendTarget(null);
+          if (!isUnfriendLoading) {
+            setIsUnfriendModalOpen(false);
+            setUnfriendTarget(null);
+          }
         }}
         onConfirm={handleRemoveConfirm}
         friendName={unfriendTarget?.displayName || ""}
         friendUsername={unfriendTarget?.username || ""}
+        isLoading={isUnfriendLoading}
       />
 
     </div>

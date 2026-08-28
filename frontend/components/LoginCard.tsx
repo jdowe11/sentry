@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { User } from "@/api/UserApi";
 import { loginUser } from "@/api/LoginApi";
+import Button from "./Button";
 import Image from "next/image";
 
 interface LoginCardProps {
@@ -86,13 +87,14 @@ export default function LoginCard({ onLoginSuccess, onToggleMode }: LoginCardPro
           />
         </div>
 
-        <button
+        <Button
           type="submit"
-          disabled={isLoading}
-          className="bg-sentry-primary hover:bg-sentry-primary-hover disabled:opacity-50 text-white py-2.5 rounded font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer mt-2"
+          variant="primary"
+          isLoading={isLoading}
+          className="w-full mt-2"
         >
-          {isLoading ? "Please wait..." : "Log In"}
-        </button>
+          Log In
+        </Button>
       </form>
 
       <div className="text-sm mt-1 text-center sm:text-left">

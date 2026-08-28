@@ -1,11 +1,14 @@
 "use client";
 
+import Button from "./Button";
+
 interface UnfriendConfirmModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   friendName: string;
   friendUsername: string;
+  isLoading?: boolean;
 }
 
 export default function UnfriendConfirmModal({
@@ -14,6 +17,7 @@ export default function UnfriendConfirmModal({
   onConfirm,
   friendName,
   friendUsername,
+  isLoading = false,
 }: UnfriendConfirmModalProps) {
   if (!isOpen) return null;
 
@@ -42,21 +46,22 @@ export default function UnfriendConfirmModal({
 
         {/* Modal Actions */}
         <div className="flex items-center justify-end gap-3 border-t border-black/10 pt-3">
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={onClose}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-xs font-bold transition-all cursor-pointer select-none"
+            disabled={isLoading}
           >
             Cancel
-          </button>
-          <button
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
-            className="px-4 py-2 bg-[#F23F43] hover:bg-[#c93337] text-white rounded text-xs font-bold transition-all active:scale-[0.97] cursor-pointer select-none"
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            isLoading={isLoading}
+            onClick={onConfirm}
           >
             {"Yes I'm sure"}
-          </button>
+          </Button>
         </div>
 
       </div>

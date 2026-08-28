@@ -6,6 +6,7 @@ import { updateDisplayName, updateUsername, getMe, User } from "@/api/UserApi";
 import ConfirmModal from "@/components/ConfirmModal";
 import { useDataLoader } from "@/hooks/useDataLoader";
 import SkeletonLoader from "./SkeletonLoader";
+import Button from "./Button";
 import Image from "next/image";
 
 function InlineEditField({
@@ -134,24 +135,26 @@ function InlineEditField({
 
         {isEditing && (
           <div className="flex gap-2 justify-end mt-1 animate-in fade-in slide-in-from-top-1 duration-150">
-            <button
+            <Button
               type="button"
+              variant="danger-outline"
+              size="xs"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleCancel}
               disabled={isLoading}
-              className="px-3 py-1 rounded text-xs font-semibold border border-[#F23F43]/40 text-[#F23F43] hover:bg-[#F23F43]/10 transition-all cursor-pointer disabled:opacity-50 active:scale-[0.97]"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="success-outline"
+              size="xs"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleSaveClick}
-              disabled={isLoading}
-              className="px-3 py-1 rounded text-xs font-semibold border border-[#23A55A]/40 text-[#23A55A] bg-[#23A55A]/10 hover:bg-[#23A55A]/20 transition-all cursor-pointer disabled:opacity-50 active:scale-[0.97]"
+              isLoading={isLoading}
             >
               Save
-            </button>
+            </Button>
           </div>
         )}
       </div>

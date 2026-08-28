@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { User, createUser, getUserByUsername } from "@/api/UserApi";
+import Button from "./Button";
 import Image from "next/image";
 
 interface RegisterCardProps {
@@ -166,13 +167,14 @@ export default function RegisterCard({ onRegisterSuccess, onToggleMode }: Regist
               />
             </div>
 
-            <button
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="bg-sentry-primary hover:bg-sentry-primary-hover disabled:opacity-50 text-white py-2.5 rounded font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer mt-2"
+              variant="primary"
+              isLoading={isLoading}
+              className="w-full mt-2"
             >
-              {isLoading ? "Checking availability..." : "Continue"}
-            </button>
+              Continue
+            </Button>
           </div>
         ) : (
           /* Step 2: Profile Setup */
@@ -193,21 +195,24 @@ export default function RegisterCard({ onRegisterSuccess, onToggleMode }: Regist
               <p className="text-[11px] text-sentry-text-muted mt-1">This is how you will be seen by others. You can use pretty much any characters.</p>
             </div>
 
-            <div className="flex gap-3 mt-2">
-              <button
+            <div className="flex gap-3 mt-2 w-full">
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => setRegisterStep(1)}
-                className="flex-1 border border-zinc-600 hover:bg-zinc-700/50 hover:text-zinc-100 text-zinc-300 py-2.5 rounded font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer"
+                disabled={isLoading}
+                className="flex-1"
               >
                 Back
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                disabled={isLoading}
-                className="flex-1 bg-sentry-primary hover:bg-sentry-primary-hover disabled:opacity-50 text-white py-2.5 rounded font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer"
+                variant="primary"
+                isLoading={isLoading}
+                className="flex-1"
               >
-                {isLoading ? "Creating Account..." : "Create Account"}
-              </button>
+                Create Account
+              </Button>
             </div>
           </div>
         )}
