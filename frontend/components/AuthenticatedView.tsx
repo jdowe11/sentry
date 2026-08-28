@@ -1,39 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { getMe, User } from "@/api/UserApi";
+import { getMe } from "@/api/UserApi";
+import { useDataLoader } from "@/hooks/useDataLoader";
 import SkeletonLoader from "./SkeletonLoader";
 import Image from "next/image";
 
 export default function AuthenticatedView() {
   const { user } = useAuth();
-  const [activeUser, setActiveUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) return;
-    let isMounted = true;
-    
-    getMe(user.id)
-      .then((data) => {
-        if (isMounted) {
-          setActiveUser(data);
-          setIsLoading(false);
-        }
-      })
-      .catch(() => {
-        // Fallback to auth context details if API fails
-        if (isMounted) {
-          setActiveUser(user);
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
+  const fetchProfile = useCallback(async () => {
+    if (!user) throw new Error("No authenticated user session.");
+    return getMe(user.id);
   }, [user]);
+
+  const { data: activeUser, isLoading } = useDataLoader(fetchProfile, [user]);
+
+  if (!user) return null;
+
+  const resolvedUser = activeUser || user;
 
   const formatDate = (dateStr: string) => {
     try {
@@ -45,7 +31,7 @@ export default function AuthenticatedView() {
 
   return (
     <div className="bg-sentry-card w-full max-w-[480px] p-8 rounded-lg shadow-lg border border-black/20 flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-200">
-      {isLoading || !activeUser ? (
+      {isLoading || !resolvedUser ? (
         <div className="flex flex-col gap-6 w-full py-4">
           <div className="flex justify-center mb-2">
             <div className="w-16 h-16 bg-zinc-800 rounded-full animate-pulse"></div>
@@ -66,26 +52,26 @@ export default function AuthenticatedView() {
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight text-zinc-100">Welcome back!</h1>
             <p className="text-sentry-text-muted text-sm mt-1">
-              You&apos;re logged into your secure Sentry workspace.
+              {"You're logged into your secure Sentry workspace."}
             </p>
           </div>
 
           <div className="w-full bg-sentry-input/50 border border-black/20 rounded p-4 flex flex-col gap-3 text-sm">
             <div className="flex justify-between border-b border-black/10 pb-2">
               <span className="text-sentry-text-muted font-semibold">Username</span>
-              <span className="font-mono text-zinc-200">{activeUser.username}</span>
+              <span className="font-mono text-zinc-200">{resolvedUser.username}</span>
             </div>
             <div className="flex justify-between border-b border-black/10 pb-2">
               <span className="text-sentry-text-muted font-semibold">Display Name</span>
-              <span className="text-zinc-200">{activeUser.displayName}</span>
+              <span className="text-zinc-200">{resolvedUser.displayName}</span>
             </div>
             <div className="flex justify-between border-b border-black/10 pb-2">
               <span className="text-sentry-text-muted font-semibold">User ID</span>
-              <span className="font-mono text-zinc-200">#{activeUser.id}</span>
+              <span className="font-mono text-zinc-200">#{resolvedUser.id}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sentry-text-muted font-semibold">Created At</span>
-              <span className="text-zinc-300 text-xs">{formatDate(activeUser.createdAt)}</span>
+              <span className="text-zinc-300 text-xs">{formatDate(resolvedUser.createdAt)}</span>
             </div>
           </div>
         </>

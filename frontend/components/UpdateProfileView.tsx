@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { updateDisplayName, updateUsername, getMe, User } from "@/api/UserApi";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useDataLoader } from "@/hooks/useDataLoader";
 import SkeletonLoader from "./SkeletonLoader";
 import Image from "next/image";
 
@@ -35,8 +36,6 @@ function InlineEditField({
     setIsEditing(true);
   };
 
-  // Only fires when focus genuinely leaves (not when clicking Save/Cancel,
-  // since those buttons use onMouseDown + preventDefault)
   const handleBlur = () => {
     if (!showConfirm) handleCancel();
   };
@@ -48,8 +47,6 @@ function InlineEditField({
     setShowConfirm(false);
   };
 
-  // Called when Save is clicked — runs validation, then either opens
-  // the confirmation modal or proceeds directly with the API call
   const handleSaveClick = () => {
     const trimmed = draft.trim();
 
@@ -90,7 +87,6 @@ function InlineEditField({
 
   return (
     <>
-      {/* Confirmation modal (portal-like, rendered above everything) */}
       {showConfirm && confirmPrompt && (
         <ConfirmModal
           title={confirmPrompt.title}
@@ -99,7 +95,6 @@ function InlineEditField({
           onConfirm={() => executeSave(draft.trim())}
           onCancel={() => {
             setShowConfirm(false);
-            // Re-focus the input so the field stays in editing mode
             setTimeout(() => inputRef.current?.focus(), 0);
           }}
         />
@@ -166,32 +161,14 @@ function InlineEditField({
 
 export default function UpdateProfileView() {
   const { user, updateUser } = useAuth();
-  const [activeUser, setActiveUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [globalSuccess, setGlobalSuccess] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    let isMounted = true;
-
-    getMe(user.id)
-      .then((data) => {
-        if (isMounted) {
-          setActiveUser(data);
-          setIsLoading(false);
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setActiveUser(user);
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
+  const fetchProfile = useCallback(async () => {
+    if (!user) throw new Error("No authenticated user session.");
+    return getMe(user.id);
   }, [user]);
+
+  const { data: activeUser, isLoading, setData: setActiveUser } = useDataLoader(fetchProfile, [user]);
 
   if (!user) return null;
 
@@ -228,9 +205,11 @@ export default function UpdateProfileView() {
     return null;
   };
 
+  const resolvedUser = activeUser || user;
+
   return (
     <div className="bg-sentry-card w-full max-w-[480px] p-8 rounded-lg shadow-lg border border-black/20 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
-      {isLoading || !activeUser ? (
+      {isLoading || !resolvedUser ? (
         <div className="flex flex-col gap-6 w-full py-4 animate-in fade-in duration-200">
           <div className="flex flex-col items-center mb-2">
             <div className="w-16 h-16 bg-zinc-800 rounded-full animate-pulse mb-3"></div>
@@ -257,7 +236,7 @@ export default function UpdateProfileView() {
           <div className="flex flex-col gap-5">
             <InlineEditField
               label="Username"
-              currentValue={activeUser.username}
+              currentValue={resolvedUser.username}
               hint="Alphanumeric characters, hyphens, and underscores only. Must be unique."
               onSave={handleSaveUsername}
               validate={validateUsername}
@@ -269,7 +248,7 @@ export default function UpdateProfileView() {
 
             <InlineEditField
               label="Display Name"
-              currentValue={activeUser.displayName}
+              currentValue={resolvedUser.displayName}
               hint="Your public display name. Can contain any characters up to 50."
               onSave={handleSaveDisplayName}
               validate={validateDisplayName}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { User } from "@/api/UserApi";
 import {
@@ -15,6 +15,7 @@ import {
 import AddFriendModal from "./AddFriendModal";
 import UnfriendConfirmModal from "./UnfriendConfirmModal";
 import SkeletonLoader from "./SkeletonLoader";
+import { useDataLoader } from "@/hooks/useDataLoader";
 
 type TabType = "friends" | "incoming" | "outgoing";
 
@@ -22,57 +23,30 @@ export default function FriendsList() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("friends");
   
-  // Friends and Pending lists states
-  const [friends, setFriends] = useState<User[]>([]);
-  const [incomingRequests, setIncomingRequests] = useState<FriendRequest[]>([]);
-  const [outgoingRequests, setOutgoingRequests] = useState<FriendRequest[]>([]);
-  const [isLoadingList, setIsLoadingList] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-
   // Modal visibility states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUnfriendModalOpen, setIsUnfriendModalOpen] = useState(false);
   const [unfriendTarget, setUnfriendTarget] = useState<User | null>(null);
 
-  // Load pending list
-  const fetchPending = useCallback(async () => {
-    if (!user) return;
-    try {
-      const res = await getPendingRequests(user.id);
-      setIncomingRequests(res.incoming);
-      setOutgoingRequests(res.outgoing);
-    } catch {
-      // Ignore background load failures
-    }
+  // Fetch pending requests and friends list in parallel
+  const fetchAllData = useCallback(async () => {
+    if (!user) throw new Error("No authenticated user session.");
+    const [pendingRes, friendsRes] = await Promise.all([
+      getPendingRequests(user.id),
+      getFriends(user.id),
+    ]);
+    return {
+      pending: pendingRes,
+      friends: friendsRes,
+    };
   }, [user]);
 
-  // Load friends list
-  const fetchFriends = useCallback(async () => {
-    if (!user) return;
-    try {
-      const res = await getFriends(user.id);
-      setFriends(res);
-    } catch {
-      // Ignore background load failures
-    }
-  }, [user]);
+  // Reuse our custom data loader hook
+  const { data, isLoading: isInitialLoad, isRefreshing, reloadData: loadData } = useDataLoader(fetchAllData, [user]);
 
-  // Unified load trigger
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    setIsLoadingList(true);
-    await Promise.allSettled([fetchPending(), fetchFriends()]);
-    setIsLoadingList(false);
-    setIsInitialLoad(false);
-  }, [user, fetchPending, fetchFriends]);
-
-  useEffect(() => {
-    if (!user) return;
-    const timer = setTimeout(() => {
-      loadData();
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [user, loadData]);
+  const friends = data?.friends || [];
+  const incomingRequests = data?.pending.incoming || [];
+  const outgoingRequests = data?.pending.outgoing || [];
 
   // Handle updating status (accept, decline, cancel)
   const handleStatusUpdate = async (requestId: number, action: "accepted" | "declined" | "cancelled") => {
@@ -176,7 +150,7 @@ export default function FriendsList() {
       {/* Main Content Area - Stretched */}
       <div className="bg-sentry-card p-6 rounded-lg shadow-lg border border-black/20 flex-1 flex flex-col gap-4 relative min-h-[360px]">
         
-        {isLoadingList && !isInitialLoad && (
+        {isRefreshing && (
           <div className="absolute top-4 right-4 text-[10px] text-sentry-text-muted animate-pulse select-none">
             Refreshing...
           </div>
