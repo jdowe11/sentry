@@ -15,6 +15,7 @@ import AddFriendModal from "./AddFriendModal";
 import UnfriendConfirmModal from "./UnfriendConfirmModal";
 import SkeletonLoader from "./SkeletonLoader";
 import Button from "./Button";
+import { getErrorMessage } from "@/utils/error";
 import { useDataLoader } from "@/hooks/useDataLoader";
 
 type TabType = "friends" | "incoming" | "outgoing";
@@ -60,7 +61,7 @@ export default function FriendsList() {
       await updateFriendRequestStatus(user.id, requestId, action);
       await loadData();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Failed to update request.");
+      alert(getErrorMessage(err));
     } finally {
       setProcessingActionId(null);
     }
@@ -82,7 +83,7 @@ export default function FriendsList() {
       setIsUnfriendModalOpen(false);
       setUnfriendTarget(null);
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Failed to unfriend user.");
+      alert(getErrorMessage(err));
     } finally {
       setIsUnfriendLoading(false);
     }
@@ -323,14 +324,13 @@ export default function FriendsList() {
       </div>
 
       {/* Add Friend Modal Component */}
-      <AddFriendModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onRequestSent={loadData}
-        incomingRequests={incomingRequests}
-        outgoingRequests={outgoingRequests}
-        onStatusUpdate={handleStatusUpdate}
-      />
+      {isAddModalOpen && (
+        <AddFriendModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onRequestSent={loadData}
+        />
+      )}
 
       {/* Custom Confirmation Modal for Unfriending */}
       <UnfriendConfirmModal

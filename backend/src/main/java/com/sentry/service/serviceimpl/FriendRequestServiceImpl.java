@@ -34,6 +34,13 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         if (senderId.equals(receiver.getId())) {
             throw new IllegalArgumentException("You cannot send a friend request to yourself");
         }
+        
+        /// Integrity check for Friend List in case their friend request was removed
+        boolean areAlreadyFriends = friendshipService.getFriendsList(senderId).stream()
+                .anyMatch(u -> u.getId().equals(receiver.getId()));
+        if (areAlreadyFriends) {
+            throw new IllegalArgumentException("You are already friends with this user");
+        }
 
         Optional<FriendRequest> existingRequestOpt = friendRequestRepository.findBySenderAndReceiver(senderId, receiver.getId());
 
