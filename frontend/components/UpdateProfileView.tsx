@@ -7,6 +7,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { useDataLoader } from "@/hooks/useDataLoader";
 import SkeletonLoader from "./SkeletonLoader";
 import Button from "./Button";
+import { getErrorMessage } from "@/utils/error";
 import Image from "next/image";
 
 function InlineEditField({
@@ -80,7 +81,7 @@ function InlineEditField({
       setShowConfirm(false);
     } catch (err: unknown) {
       setShowConfirm(false);
-      setError(err instanceof Error ? err.message : "Failed to save changes.");
+      setError(getErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
