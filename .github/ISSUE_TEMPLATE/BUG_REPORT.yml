@@ -44,15 +44,3 @@ body:
       render: bash
     validations:
       required: false
-  - type: dropdown
-    id: os
-    attributes:
-      label: "OS"
-      description: What is the impacted environment ?
-      multiple: true
-      options:
-        - IOS
-        - Android
-        - Both
-    validations:
-      required: true
