@@ -91,6 +91,19 @@ public class FriendRequestServiceImplTest {
     }
 
     @Test
+    public void testSendFriendRequest_ActiveFriends_ThrowsException() {
+        User receiver = User.builder().id(2L).username("bob").build();
+
+        when(userRepository.findByUsername("bob")).thenReturn(Optional.of(receiver));
+        when(friendshipService.getFriendsList(1L)).thenReturn(Arrays.asList(receiver));
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            friendRequestService.sendFriendRequest(1L, "bob");
+        });
+        assertEquals("You are already friends with this user", ex.getMessage());
+    }
+
+    @Test
     public void testSendFriendRequest_AlreadySentPending_ThrowsException() {
         User receiver = User.builder().id(2L).username("bob").build();
         FriendRequest existing = FriendRequest.builder().senderId(1L).receiverId(2L).status("pending").build();
