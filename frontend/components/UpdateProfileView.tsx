@@ -1,15 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { updateDisplayName, updateUsername } from "@/api/UserApi";
-import { User } from "@/api/UserApi";
+import { updateDisplayName, updateUsername, getMe, User } from "@/api/UserApi";
 import ConfirmModal from "@/components/ConfirmModal";
+import SkeletonLoader from "./SkeletonLoader";
 import Image from "next/image";
 
-// ─────────────────────────────────────────────
-// Reusable inline-edit field
-// ─────────────────────────────────────────────
 function InlineEditField({
   label,
   currentValue,
@@ -167,24 +164,48 @@ function InlineEditField({
   );
 }
 
-// ─────────────────────────────────────────────
-// Profile settings page
-// ─────────────────────────────────────────────
 export default function UpdateProfileView() {
   const { user, updateUser } = useAuth();
+  const [activeUser, setActiveUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [globalSuccess, setGlobalSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let isMounted = true;
+
+    getMe(user.id)
+      .then((data) => {
+        if (isMounted) {
+          setActiveUser(data);
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setActiveUser(user);
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   if (!user) return null;
 
   const handleSaveUsername = async (newUsername: string) => {
     const updated: User = await updateUsername(user.id, newUsername);
     updateUser(updated);
+    setActiveUser(updated);
     flashSuccess();
   };
 
   const handleSaveDisplayName = async (newDisplayName: string) => {
     const updated: User = await updateDisplayName(user.id, newDisplayName);
     updateUser(updated);
+    setActiveUser(updated);
     flashSuccess();
   };
 
@@ -209,42 +230,53 @@ export default function UpdateProfileView() {
 
   return (
     <div className="bg-sentry-card w-full max-w-[480px] p-8 rounded-lg shadow-lg border border-black/20 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
-
-      <div className="flex flex-col items-center">
-        <Image src="/logo.png" alt="Sentry Logo" width={64} height={64} className="object-contain mb-3" />
-        <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Profile Settings</h2>
-        <p className="text-sentry-text-muted text-sm mt-1.5 text-center">
-          Click a field to edit it.
-        </p>
-      </div>
-
-      {globalSuccess && (
-        <div className="bg-[#23A55A]/10 border border-[#23A55A]/30 text-[#23A55A] rounded p-2.5 text-xs font-semibold text-center animate-in fade-in duration-150">
-          ✓ {globalSuccess}
+      {isLoading || !activeUser ? (
+        <div className="flex flex-col gap-6 w-full py-4 animate-in fade-in duration-200">
+          <div className="flex flex-col items-center mb-2">
+            <div className="w-16 h-16 bg-zinc-800 rounded-full animate-pulse mb-3"></div>
+            <div className="h-5 bg-zinc-800 rounded w-36 animate-pulse"></div>
+          </div>
+          <SkeletonLoader type="list" count={2} />
         </div>
+      ) : (
+        <>
+          <div className="flex flex-col items-center">
+            <Image src="/logo.png" alt="Sentry Logo" width={64} height={64} className="object-contain mb-3" />
+            <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Profile Settings</h2>
+            <p className="text-sentry-text-muted text-sm mt-1.5 text-center">
+              Click a field to edit it.
+            </p>
+          </div>
+
+          {globalSuccess && (
+            <div className="bg-[#23A55A]/10 border border-[#23A55A]/30 text-[#23A55A] rounded p-2.5 text-xs font-semibold text-center animate-in fade-in duration-150">
+              ✓ {globalSuccess}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-5">
+            <InlineEditField
+              label="Username"
+              currentValue={activeUser.username}
+              hint="Alphanumeric characters, hyphens, and underscores only. Must be unique."
+              onSave={handleSaveUsername}
+              validate={validateUsername}
+              confirmPrompt={{
+                title: "Are you sure?",
+                description: "Changing your username cannot be undone. Others may not be able to find you by your old username.",
+              }}
+            />
+
+            <InlineEditField
+              label="Display Name"
+              currentValue={activeUser.displayName}
+              hint="Your public display name. Can contain any characters up to 50."
+              onSave={handleSaveDisplayName}
+              validate={validateDisplayName}
+            />
+          </div>
+        </>
       )}
-
-      <div className="flex flex-col gap-5">
-        <InlineEditField
-          label="Username"
-          currentValue={user.username}
-          hint="Alphanumeric characters, hyphens, and underscores only. Must be unique."
-          onSave={handleSaveUsername}
-          validate={validateUsername}
-          confirmPrompt={{
-            title: "Are you sure?",
-            description: "Changing your username cannot be undone. Others may not be able to find you by your old username.",
-          }}
-        />
-
-        <InlineEditField
-          label="Display Name"
-          currentValue={user.displayName}
-          hint="Your public display name. Can contain any characters up to 50."
-          onSave={handleSaveDisplayName}
-          validate={validateDisplayName}
-        />
-      </div>
     </div>
   );
 }
