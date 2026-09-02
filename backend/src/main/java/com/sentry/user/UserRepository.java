@@ -1,0 +1,14 @@
+package com.sentry.user;
+
+import java.util.Optional;
+import java.util.List;
+
+public interface UserRepository {
+    User save(User user);
+    Optional<User> findById(Long id);
+    Optional<User> findByUsername(String username);
+    List<User> findAll();
+    boolean existsByUsername(String username);
+    void deleteById(Long id);
+    List<User> searchByUsername(String query);
+}
