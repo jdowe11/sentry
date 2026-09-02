@@ -19,6 +19,31 @@
   --color-sentry-primary-hover: #4752C4;
   --color-sentry-text-muted: #B5BAC1;
   --color-sentry-text-link: #00A8FC;
+
+  /* Overridden Increased Font Sizes (Option 2 Scale) */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.25rem;
+
+  --text-sm: 1rem;
+  --text-sm--line-height: 1.5rem;
+
+  --text-base: 1.125rem;
+  --text-base--line-height: 1.75rem;
+
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.75rem;
+
+  --text-xl: 1.5rem;
+  --text-xl--line-height: 2rem;
+
+  --text-2xl: 1.875rem;
+  --text-2xl--line-height: 2.25rem;
+
+  --text-3xl: 2.25rem;
+  --text-3xl--line-height: 2.5rem;
+
+  --text-4xl: 3rem;
+  --text-4xl--line-height: 1;
 }
 
 @media (prefers-color-scheme: dark) {
