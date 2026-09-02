@@ -1,15 +1,8 @@
-# sentry
+# sentry-backend
 End-to-end encrypted messenger, with voice calls in mind.
+This is the backend repository for this.
 
 ## Tech Stack
-
-### Frontend
-
-- React
-- Vite
-- TypeScript
-- Tailwind CSS
-- Gemini API
 
 ### Backend
 
@@ -22,15 +15,7 @@ End-to-end encrypted messenger, with voice calls in mind.
 - Lombok
 - Spring Boot Starter Web
 
-
 ## Setup
-
-### Frontend
-
-```bash
-npm install
-npm run dev
-```
 
 ### Backend
 
