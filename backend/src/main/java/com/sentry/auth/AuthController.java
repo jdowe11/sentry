@@ -20,12 +20,8 @@ public class AuthController {
     /// User Authentication (Login)
     @PostMapping("/auth/login")
     public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest) {
-        try {
-            User user = authService.login(loginRequest.getUsername(), loginRequest.getPassword());
-            return ResponseEntity.ok(user);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        User user = authService.login(loginRequest.getUsername(), loginRequest.getPassword());
+        return ResponseEntity.ok(user);
     }
 
     /// User Logout
