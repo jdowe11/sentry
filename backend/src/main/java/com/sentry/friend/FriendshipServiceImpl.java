@@ -1,7 +1,7 @@
 package com.sentry.friend;
 
 import com.sentry.user.User;
-import com.sentry.user.UserRepository;
+import com.sentry.user.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class FriendshipServiceImpl implements FriendshipService {
+class FriendshipServiceImpl implements FriendshipService {
 
     @Autowired
     private FriendshipRepository friendshipRepository;
@@ -19,7 +19,7 @@ public class FriendshipServiceImpl implements FriendshipService {
     private FriendRequestRepository friendRequestRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Override
     @Transactional
@@ -29,9 +29,9 @@ public class FriendshipServiceImpl implements FriendshipService {
         }
 
         // Verify users exist
-        userRepository.findById(userId1)
+        userService.getUserById(userId1)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId1 + " not found"));
-        userRepository.findById(userId2)
+        userService.getUserById(userId2)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId2 + " not found"));
 
         long u1 = Math.min(userId1, userId2);
@@ -47,7 +47,7 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Override
     public List<User> getFriendsList(Long userId) {
-        userRepository.findById(userId)
+        userService.getUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " not found"));
 
         return friendshipRepository.findFriendsByUserId(userId);
@@ -57,9 +57,9 @@ public class FriendshipServiceImpl implements FriendshipService {
     @Transactional
     public void removeFriendship(Long userId, Long friendId) {
         // Verify users exist
-        userRepository.findById(userId)
+        userService.getUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " not found"));
-        userRepository.findById(friendId)
+        userService.getUserById(friendId)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID " + friendId + " not found"));
 
         long u1 = Math.min(userId, friendId);

@@ -2,7 +2,7 @@ package com.sentry.friend;
 
 import com.sentry.friend.dto.FriendRequestResponse;
 import com.sentry.user.User;
-import com.sentry.user.UserRepository;
+import com.sentry.user.UserService;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,7 @@ public class FriendRequestServiceImplTest {
     private FriendRequestRepository friendRequestRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Mock
     private FriendshipService friendshipService;
@@ -35,7 +35,7 @@ public class FriendRequestServiceImplTest {
     public void testSendFriendRequest_Success() {
         User receiver = User.builder().id(2L).username("bob").build();
 
-        when(userRepository.findByUsername("bob")).thenReturn(Optional.of(receiver));
+        when(userService.getUserByUsername("bob")).thenReturn(Optional.of(receiver));
         when(friendRequestRepository.findBySenderAndReceiver(1L, 2L)).thenReturn(Optional.empty());
 
         FriendRequest savedRequest = FriendRequest.builder()
@@ -55,7 +55,7 @@ public class FriendRequestServiceImplTest {
 
     @Test
     public void testSendFriendRequest_ReceiverNotFound_ThrowsException() {
-        when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
+        when(userService.getUserByUsername("nonexistent")).thenReturn(Optional.empty());
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
             friendRequestService.sendFriendRequest(1L, "nonexistent");
@@ -66,7 +66,7 @@ public class FriendRequestServiceImplTest {
     @Test
     public void testSendFriendRequest_ToSelf_ThrowsException() {
         User alice = User.builder().id(1L).username("alice").build();
-        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(alice));
+        when(userService.getUserByUsername("alice")).thenReturn(Optional.of(alice));
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
             friendRequestService.sendFriendRequest(1L, "alice");
@@ -79,7 +79,7 @@ public class FriendRequestServiceImplTest {
         User receiver = User.builder().id(2L).username("bob").build();
         FriendRequest existing = FriendRequest.builder().senderId(1L).receiverId(2L).status("accepted").build();
 
-        when(userRepository.findByUsername("bob")).thenReturn(Optional.of(receiver));
+        when(userService.getUserByUsername("bob")).thenReturn(Optional.of(receiver));
         when(friendRequestRepository.findBySenderAndReceiver(1L, 2L)).thenReturn(Optional.of(existing));
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
@@ -92,7 +92,7 @@ public class FriendRequestServiceImplTest {
     public void testSendFriendRequest_ActiveFriends_ThrowsException() {
         User receiver = User.builder().id(2L).username("bob").build();
 
-        when(userRepository.findByUsername("bob")).thenReturn(Optional.of(receiver));
+        when(userService.getUserByUsername("bob")).thenReturn(Optional.of(receiver));
         when(friendshipService.getFriendsList(1L)).thenReturn(Arrays.asList(receiver));
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
@@ -106,7 +106,7 @@ public class FriendRequestServiceImplTest {
         User receiver = User.builder().id(2L).username("bob").build();
         FriendRequest existing = FriendRequest.builder().senderId(1L).receiverId(2L).status("pending").build();
 
-        when(userRepository.findByUsername("bob")).thenReturn(Optional.of(receiver));
+        when(userService.getUserByUsername("bob")).thenReturn(Optional.of(receiver));
         when(friendRequestRepository.findBySenderAndReceiver(1L, 2L)).thenReturn(Optional.of(existing));
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
@@ -121,7 +121,7 @@ public class FriendRequestServiceImplTest {
         // Bob sent it to Alice (receiverId = 1, senderId = 2)
         FriendRequest existing = FriendRequest.builder().senderId(2L).receiverId(1L).status("pending").build();
 
-        when(userRepository.findByUsername("bob")).thenReturn(Optional.of(receiver));
+        when(userService.getUserByUsername("bob")).thenReturn(Optional.of(receiver));
         when(friendRequestRepository.findBySenderAndReceiver(1L, 2L)).thenReturn(Optional.of(existing));
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
@@ -135,7 +135,7 @@ public class FriendRequestServiceImplTest {
         User receiver = User.builder().id(2L).username("bob").build();
         FriendRequest existing = FriendRequest.builder().id(100L).senderId(2L).receiverId(1L).status("declined").build();
 
-        when(userRepository.findByUsername("bob")).thenReturn(Optional.of(receiver));
+        when(userService.getUserByUsername("bob")).thenReturn(Optional.of(receiver));
         when(friendRequestRepository.findBySenderAndReceiver(1L, 2L)).thenReturn(Optional.of(existing));
         when(friendRequestRepository.save(existing)).thenAnswer(inv -> inv.getArgument(0));
 

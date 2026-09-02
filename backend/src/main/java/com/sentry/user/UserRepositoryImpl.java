@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class UserRepositoryImpl implements UserRepository {
+class UserRepositoryImpl implements UserRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;

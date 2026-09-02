@@ -1,7 +1,7 @@
 package com.sentry.friend;
 
 import com.sentry.user.User;
-import com.sentry.user.UserRepository;
+import com.sentry.user.UserService;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,7 @@ public class FriendshipServiceImplTest {
     private FriendRequestRepository friendRequestRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @InjectMocks
     private FriendshipServiceImpl friendshipService;
@@ -36,8 +36,8 @@ public class FriendshipServiceImplTest {
         User u1 = User.builder().id(1L).username("u1").build();
         User u2 = User.builder().id(2L).username("u2").build();
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(u1));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(u2));
+        when(userService.getUserById(1L)).thenReturn(Optional.of(u1));
+        when(userService.getUserById(2L)).thenReturn(Optional.of(u2));
 
         Friendship f = Friendship.builder().userId1(1L).userId2(2L).build();
         when(friendshipRepository.save(any(Friendship.class))).thenReturn(f);
@@ -57,7 +57,7 @@ public class FriendshipServiceImplTest {
 
     @Test
     public void testAddFriendship_UserNotFound_ThrowsException() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        when(userService.getUserById(1L)).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> friendshipService.addFriendship(1L, 2L));
     }
 
@@ -66,7 +66,7 @@ public class FriendshipServiceImplTest {
         User u1 = User.builder().id(1L).username("u1").build();
         User friend = User.builder().id(2L).username("friend").build();
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(u1));
+        when(userService.getUserById(1L)).thenReturn(Optional.of(u1));
         when(friendshipRepository.findFriendsByUserId(1L)).thenReturn(Arrays.asList(friend));
 
         List<User> list = friendshipService.getFriendsList(1L);
@@ -79,8 +79,8 @@ public class FriendshipServiceImplTest {
         User u1 = User.builder().id(1L).username("u1").build();
         User u2 = User.builder().id(2L).username("u2").build();
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(u1));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(u2));
+        when(userService.getUserById(1L)).thenReturn(Optional.of(u1));
+        when(userService.getUserById(2L)).thenReturn(Optional.of(u2));
         when(friendshipRepository.exists(1L, 2L)).thenReturn(true);
 
         doNothing().when(friendshipRepository).delete(1L, 2L);
@@ -97,8 +97,8 @@ public class FriendshipServiceImplTest {
         User u1 = User.builder().id(1L).username("u1").build();
         User u2 = User.builder().id(2L).username("u2").build();
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(u1));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(u2));
+        when(userService.getUserById(1L)).thenReturn(Optional.of(u1));
+        when(userService.getUserById(2L)).thenReturn(Optional.of(u2));
         when(friendshipRepository.exists(1L, 2L)).thenReturn(false);
 
         assertThrows(IllegalArgumentException.class, () -> friendshipService.removeFriendship(1L, 2L));

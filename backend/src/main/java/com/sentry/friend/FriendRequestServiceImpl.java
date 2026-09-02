@@ -5,27 +5,27 @@ import org.springframework.stereotype.Service;
 
 import com.sentry.friend.dto.FriendRequestResponse;
 import com.sentry.user.User;
-import com.sentry.user.UserRepository;
+import com.sentry.user.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FriendRequestServiceImpl implements FriendRequestService {
+class FriendRequestServiceImpl implements FriendRequestService {
 
     @Autowired
     private FriendRequestRepository friendRequestRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private FriendshipService friendshipService;
 
     @Override
     public FriendRequest sendFriendRequest(Long senderId, String receiverUsername) {
-        User receiver = userRepository.findByUsername(receiverUsername)
+        User receiver = userService.getUserByUsername(receiverUsername)
                 .orElseThrow(() -> new IllegalArgumentException("User with username '" + receiverUsername + "' not found"));
 
         if (senderId.equals(receiver.getId())) {

@@ -1,7 +1,7 @@
 package com.sentry.auth;
 
 import com.sentry.user.User;
-import com.sentry.user.UserRepository;
+import com.sentry.user.UserService;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 public class AuthServiceImplTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -29,7 +29,7 @@ public class AuthServiceImplTest {
                 .username("jose")
                 .passwordHash("pwd")
                 .build();
-        when(userRepository.findByUsername("jose")).thenReturn(Optional.of(existing));
+        when(userService.getUserByUsername("jose")).thenReturn(Optional.of(existing));
 
         User loggedIn = authService.login("jose", "pwd");
         assertNotNull(loggedIn);
@@ -44,7 +44,7 @@ public class AuthServiceImplTest {
 
     @Test
     public void testLogin_UserNotFound_ThrowsException() {
-        when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
+        when(userService.getUserByUsername("nonexistent")).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> authService.login("nonexistent", "pwd"));
     }
 
@@ -54,7 +54,7 @@ public class AuthServiceImplTest {
                 .username("jose")
                 .passwordHash("pwd")
                 .build();
-        when(userRepository.findByUsername("jose")).thenReturn(Optional.of(existing));
+        when(userService.getUserByUsername("jose")).thenReturn(Optional.of(existing));
         assertThrows(IllegalArgumentException.class, () -> authService.login("jose", "wrongpwd"));
     }
 }

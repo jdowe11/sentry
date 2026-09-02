@@ -1,8 +1,6 @@
 package com.sentry.friend;
 
 import com.sentry.user.User;
-import com.sentry.user.UserRepository;
-import com.sentry.user.UserRepositoryImpl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,20 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @JdbcTest
-@Import({FriendshipRepositoryImpl.class, UserRepositoryImpl.class})
+@Import(FriendshipRepositoryImpl.class)
 public class FriendshipRepositoryTest {
 
     @Autowired
     private FriendshipRepository friendshipRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -31,6 +29,26 @@ public class FriendshipRepositoryTest {
     private User alice;
     private User bob;
     private User charlie;
+
+    private User insertUser(String username, String displayName) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    "INSERT INTO users (username, display_name, password_hash) VALUES (?, ?, ?)",
+                    new String[]{"id"}
+            );
+            ps.setString(1, username);
+            ps.setString(2, displayName);
+            ps.setString(3, "pwd");
+            return ps;
+        }, keyHolder);
+        return User.builder()
+                .id(keyHolder.getKey().longValue())
+                .username(username)
+                .displayName(displayName)
+                .passwordHash("pwd")
+                .build();
+    }
 
     @BeforeEach
     public void setUp() {
@@ -56,9 +74,9 @@ public class FriendshipRepositoryTest {
         jdbcTemplate.execute("DELETE FROM users");
 
         // Insert test users
-        alice = userRepository.save(User.builder().username("alice").displayName("Alice").passwordHash("pwd").build());
-        bob = userRepository.save(User.builder().username("bob").displayName("Bob").passwordHash("pwd").build());
-        charlie = userRepository.save(User.builder().username("charlie").displayName("Charlie").passwordHash("pwd").build());
+        alice = insertUser("alice", "Alice");
+        bob = insertUser("bob", "Bob");
+        charlie = insertUser("charlie", "Charlie");
     }
 
     @Test

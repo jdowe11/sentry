@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class FriendshipRepositoryImpl implements FriendshipRepository {
+class FriendshipRepositoryImpl implements FriendshipRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;

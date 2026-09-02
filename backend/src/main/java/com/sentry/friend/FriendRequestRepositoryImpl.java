@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class FriendRequestRepositoryImpl implements FriendRequestRepository {
+class FriendRequestRepositoryImpl implements FriendRequestRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
