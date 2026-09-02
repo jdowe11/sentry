@@ -1,11 +1,10 @@
-package com.sentry.controller;
+package com.sentry.friend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sentry.dto.FriendRequestResponse;
-import com.sentry.dto.SendFriendRequest;
-import com.sentry.dto.UpdateStatusRequest;
-import com.sentry.model.FriendRequest;
-import com.sentry.service.FriendRequestService;
+import com.sentry.friend.dto.FriendRequestResponse;
+import com.sentry.friend.dto.SendFriendRequest;
+import com.sentry.friend.dto.UpdateStatusRequest;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

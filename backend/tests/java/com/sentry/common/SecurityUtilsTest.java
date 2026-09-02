@@ -1,6 +1,8 @@
-package com.sentry.util;
+package com.sentry.common;
 
 import org.junit.jupiter.api.Test;
+
+import com.sentry.common.util.SecurityUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 

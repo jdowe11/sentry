@@ -1,11 +1,8 @@
-package com.sentry.service;
+package com.sentry.friend;
 
-import com.sentry.model.Friendship;
-import com.sentry.model.User;
-import com.sentry.repository.FriendRequestRepository;
-import com.sentry.repository.FriendshipRepository;
-import com.sentry.repository.UserRepository;
-import com.sentry.service.serviceimpl.FriendshipServiceImpl;
+import com.sentry.user.User;
+import com.sentry.user.UserRepository;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

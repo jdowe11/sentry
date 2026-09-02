@@ -1,8 +1,8 @@
-package com.sentry.service;
+package com.sentry.auth;
 
-import com.sentry.model.User;
-import com.sentry.repository.UserRepository;
-import com.sentry.service.serviceimpl.AuthServiceImpl;
+import com.sentry.user.User;
+import com.sentry.user.UserRepository;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

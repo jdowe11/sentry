@@ -1,10 +1,9 @@
-package com.sentry.controller;
+package com.sentry.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sentry.dto.UpdateDisplayNameRequest;
-import com.sentry.dto.UpdateUsernameRequest;
-import com.sentry.model.User;
-import com.sentry.service.UserService;
+import com.sentry.user.dto.UpdateDisplayNameRequest;
+import com.sentry.user.dto.UpdateUsernameRequest;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

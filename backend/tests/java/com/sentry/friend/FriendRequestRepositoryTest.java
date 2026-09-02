@@ -1,9 +1,9 @@
-package com.sentry.repository;
+package com.sentry.friend;
 
-import com.sentry.model.FriendRequest;
-import com.sentry.model.User;
-import com.sentry.repository.repositoryimpl.FriendRequestRepositoryImpl;
-import com.sentry.repository.repositoryimpl.UserRepositoryImpl;
+import com.sentry.user.User;
+import com.sentry.user.UserRepository;
+import com.sentry.user.UserRepositoryImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

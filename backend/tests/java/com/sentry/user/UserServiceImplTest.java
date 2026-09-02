@@ -1,10 +1,8 @@
-package com.sentry.service;
+package com.sentry.user;
 
-import com.sentry.dto.UpdateDisplayNameRequest;
-import com.sentry.dto.UpdateUsernameRequest;
-import com.sentry.model.User;
-import com.sentry.repository.UserRepository;
-import com.sentry.service.serviceimpl.UserServiceImpl;
+import com.sentry.user.dto.UpdateDisplayNameRequest;
+import com.sentry.user.dto.UpdateUsernameRequest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

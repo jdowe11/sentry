@@ -1,9 +1,9 @@
-package com.sentry.controller;
+package com.sentry.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sentry.dto.LoginRequest;
-import com.sentry.model.User;
-import com.sentry.service.AuthService;
+import com.sentry.auth.dto.LoginRequest;
+import com.sentry.user.User;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

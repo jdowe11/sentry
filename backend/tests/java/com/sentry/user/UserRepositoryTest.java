@@ -1,7 +1,6 @@
-package com.sentry.repository;
+package com.sentry.user;
 
-import com.sentry.model.User;
-import com.sentry.repository.repositoryimpl.UserRepositoryImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
