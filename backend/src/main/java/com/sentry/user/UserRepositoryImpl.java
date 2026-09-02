@@ -1,6 +1,6 @@
 package com.sentry.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 class UserRepositoryImpl implements UserRepository {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     private final RowMapper<User> userRowMapper = (rs, rowNum) -> User.builder()
             .id(rs.getLong("id"))

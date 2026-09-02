@@ -3,23 +3,19 @@ package com.sentry.friend;
 import com.sentry.user.User;
 import com.sentry.user.UserService;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 class FriendshipServiceImpl implements FriendshipService {
 
-    @Autowired
-    private FriendshipRepository friendshipRepository;
-
-    @Autowired
-    private FriendRequestRepository friendRequestRepository;
-
-    @Autowired
-    private UserService userService;
+    private final FriendshipRepository friendshipRepository;
+    private final FriendRequestRepository friendRequestRepository;
+    private final UserService userService;
 
     @Override
     @Transactional

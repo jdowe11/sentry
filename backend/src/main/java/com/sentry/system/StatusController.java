@@ -1,6 +1,6 @@
 package com.sentry.system;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +12,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class StatusController {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> getStatus() {

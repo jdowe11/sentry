@@ -5,7 +5,7 @@ import com.sentry.user.User;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +15,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1.0")
 @Validated
+@RequiredArgsConstructor
 public class FriendshipController {
 
-    @Autowired
-    private FriendshipService friendshipService;
+    private final FriendshipService friendshipService;
 
     @GetMapping("/friends")
     public ResponseEntity<List<User>> getFriendsList(@Parameter(hidden = true) @CurrentUserId Long userId) {

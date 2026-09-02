@@ -2,7 +2,7 @@ package com.sentry.friend;
 
 import com.sentry.user.User;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 class FriendshipRepositoryImpl implements FriendshipRepository {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     private final RowMapper<User> userRowMapper = (rs, rowNum) -> User.builder()
             .id(rs.getLong("id"))

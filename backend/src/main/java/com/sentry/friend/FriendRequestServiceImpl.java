@@ -1,7 +1,8 @@
 package com.sentry.friend;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sentry.friend.dto.FriendRequestResponse;
 import com.sentry.user.User;
@@ -12,16 +13,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 class FriendRequestServiceImpl implements FriendRequestService {
 
-    @Autowired
-    private FriendRequestRepository friendRequestRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private FriendshipService friendshipService;
+    private final FriendRequestRepository friendRequestRepository;
+    private final UserService userService;
+    private final FriendshipService friendshipService;
 
     @Override
     public FriendRequest sendFriendRequest(Long senderId, String receiverUsername) {
@@ -74,6 +71,7 @@ class FriendRequestServiceImpl implements FriendRequestService {
     }
 
     @Override
+    @Transactional
     public FriendRequest acceptFriendRequest(Long userId, Long requestId) {
         FriendRequest request = friendRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Friend request not found"));

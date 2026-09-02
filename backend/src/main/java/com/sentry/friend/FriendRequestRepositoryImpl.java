@@ -2,7 +2,7 @@ package com.sentry.friend;
 
 import com.sentry.user.User;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 class FriendRequestRepositoryImpl implements FriendRequestRepository {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     private final RowMapper<FriendRequest> friendRequestRowMapper = (rs, rowNum) -> {
         User sender = User.builder()

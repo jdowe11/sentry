@@ -1,6 +1,6 @@
 package com.sentry.auth;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,10 +12,10 @@ import com.sentry.user.User;
 
 @RestController
 @RequestMapping("/api/v1.0")
+@RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
     /// User Authentication (Login)
     @PostMapping("/auth/login")

@@ -3,14 +3,14 @@ package com.sentry.auth;
 import com.sentry.user.User;
 import com.sentry.user.UserService;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @Override
     public User login(String username, String password) {

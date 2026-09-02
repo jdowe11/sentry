@@ -8,7 +8,7 @@ import com.sentry.friend.dto.UpdateStatusRequest;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1.0")
 @Validated
+@RequiredArgsConstructor
 public class FriendRequestController {
 
-    @Autowired
-    private FriendRequestService friendRequestService;
+    private final FriendRequestService friendRequestService;
 
     @PostMapping("/friend-requests")
     public ResponseEntity<FriendRequest> sendFriendRequest(
