@@ -1,5 +1,6 @@
 # sentry
 End-to-end encrypted messenger, with voice calls in mind.
+This is the backend repository for this.
 
 ## Tech Stack
 
@@ -24,13 +25,6 @@ End-to-end encrypted messenger, with voice calls in mind.
 
 
 ## Setup
-
-### Frontend
-
-```bash
-npm install
-npm run dev
-```
 
 ### Backend
 
